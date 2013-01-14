@@ -1,3 +1,5 @@
+This is an attempt to uglify PMCalendar to NOT use ARC.
+
 PMCalendar v0.3
 ==========
 
