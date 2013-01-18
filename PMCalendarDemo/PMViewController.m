@@ -74,8 +74,8 @@
 - (void)calendarController:(PMCalendarController *)calendarController didChangePeriod:(PMPeriod *)newPeriod
 {
     periodLabel.text = [NSString stringWithFormat:@"%@ - %@"
-                        , [newPeriod.startDate dateStringWithFormat:@"dd-MM-yyyy"]
-                        , [newPeriod.endDate dateStringWithFormat:@"dd-MM-yyyy"]];
+                        , [newPeriod.startDate pmDateStringWithFormat:@"dd-MM-yyyy"]
+                        , [newPeriod.endDate pmDateStringWithFormat:@"dd-MM-yyyy"]];
 }
 
 @end

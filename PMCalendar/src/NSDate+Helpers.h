@@ -16,66 +16,66 @@
 /**
  * Returns current (self) date without time components. Effectively, it's just a beginning of a day.
  */
-- (NSDate *) dateWithoutTime;
+- (NSDate *) pmDateWithoutTime;
 
 /**
  * Returns a date object shifted by a given number of days from the current (self) date.
  */
-- (NSDate *) dateByAddingDays:(NSInteger) days;
+- (NSDate *) pmDateByAddingDays:(NSInteger) days;
 
 /**
  * Returns a date object shifted by a given number of months from the current (self) date.
  */
-- (NSDate *) dateByAddingMonths:(NSInteger) months;
+- (NSDate *) pmDateByAddingMonths:(NSInteger) months;
 
 /**
  * Returns a date object shifted by a given number of years from the current (self) date.
  */
-- (NSDate *) dateByAddingYears:(NSInteger) years;
+- (NSDate *) pmDateByAddingYears:(NSInteger) years;
 
 /**
  * Returns a date object shifted by a given number of days, months and years from the current (self) date.
  */
-- (NSDate *) dateByAddingDays:(NSInteger) days months:(NSInteger) months years:(NSInteger) years;
+- (NSDate *) pmDateByAddingDays:(NSInteger) days months:(NSInteger) months years:(NSInteger) years;
 
 /**
  * Returns start of month for the current (self) date.
  */
-- (NSDate *) monthStartDate;
+- (NSDate *) pmMonthStartDate;
 
 /**
  * Returns start of day for the current (self) date.
  */
-- (NSDate *) midnightDate;
+- (NSDate *) pmMidnightDate;
 
 /**
  * Returns the number of days in the current (self) month.
  */
-- (NSUInteger) numberOfDaysInMonth;
+- (NSUInteger) pmNumberOfDaysInMonth;
 
 /**
  * Returns the weekday of the current (self) date.
  * 
  * Returns 1 for Sunday, 2 for Monday ... 7 for Saturday
  */
-- (NSUInteger) weekday;
+- (NSUInteger) pmGregorianWeekday;
 
 /**
  * Returns the number of days since given date.
  */
-- (NSInteger) daysSinceDate:(NSDate *) date;
+- (NSInteger) pmDaysSinceDate:(NSDate *) date;
 
 /**
  * Returns string representation of the current (self) date formatted with given format.
  *
  * i.e. "dd-MM-yyyy" will return "14-07-2012"
  */
-- (NSString *) dateStringWithFormat:(NSString *) format;
+- (NSString *) pmDateStringWithFormat:(NSString *) format;
 
 /**
  * Checks if a given date is before or after the current (self) date.
  */
-- (BOOL) isBefore:(NSDate *) date;
-- (BOOL) isAfter:(NSDate *) date;
+- (BOOL) pmIsBefore:(NSDate *) date;
+- (BOOL) pmIsAfter:(NSDate *) date;
 
 @end

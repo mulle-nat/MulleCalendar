@@ -9,13 +9,13 @@
 #import "PMCalendarHelpers.h"
 #import "PMThemeEngine.h"
 
-#define kPMThemeHeaderHeight [PMThemeEngine sharedInstance].headerHeight
-#define kPMThemeDefaultFont [PMThemeEngine sharedInstance].defaultFont
-#define kPMThemeInnerPadding [PMThemeEngine sharedInstance].innerPadding
-#define kPMThemeShadowPadding [PMThemeEngine sharedInstance].shadowInsets
-#define kPMThemeShadowBlurRadius [PMThemeEngine sharedInstance].shadowBlurRadius
-#define kPMThemeDayTitlesInHeader [PMThemeEngine sharedInstance].dayTitlesInHeader
+#define kPMThemeHeaderHeight        [PMThemeEngine sharedInstance].headerHeight
+#define kPMThemeDefaultFont         [PMThemeEngine sharedInstance].defaultFont
+#define kPMThemeInnerPadding        [PMThemeEngine sharedInstance].innerPadding
+#define kPMThemeShadowPadding       [PMThemeEngine sharedInstance].shadowInsets
+#define kPMThemeShadowBlurRadius    [PMThemeEngine sharedInstance].shadowBlurRadius
+#define kPMThemeDayTitlesInHeader   [PMThemeEngine sharedInstance].dayTitlesInHeader
 #define kPMThemeDayTitlesInHeaderIntOffset ((kPMThemeDayTitlesInHeader)?0:1)
-#define kPMThemeCornerRadius [PMThemeEngine sharedInstance].cornerRadius
-#define kPMThemeArrowSize [PMThemeEngine sharedInstance].arrowSize
-#define kPMThemeOuterPadding [PMThemeEngine sharedInstance].outerPadding
+#define kPMThemeCornerRadius        [PMThemeEngine sharedInstance].cornerRadius
+#define kPMThemeArrowSize           [PMThemeEngine sharedInstance].arrowSize
+#define kPMThemeOuterPadding        [PMThemeEngine sharedInstance].outerPadding
