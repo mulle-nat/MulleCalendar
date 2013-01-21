@@ -168,8 +168,8 @@ NSString   *PMCalendarRedrawNotification = @"PMCalendarRedrawNotification";
    if( ! view)
       return;
    
-   rect = [view convertRect:[view frame]
-                   fromView:[view superview]];
+   rect = [[self view] convertRect:[view frame]
+                          fromView:[view superview]];
    
    [UIView animateWithDuration:0.3
                     animations:^{
