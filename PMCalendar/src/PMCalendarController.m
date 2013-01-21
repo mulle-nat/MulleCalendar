@@ -103,7 +103,7 @@ NSString   *PMCalendarRedrawNotification = @"PMCalendarRedrawNotification";
 - (id) init
 {
    return( [self initWithThemeName:nil
-                           size:CGSizeZero]);
+                              size:CGSizeZero]);
 }
 
 
@@ -352,7 +352,7 @@ found:
    if( isPopover)
    {
       view = [[[PMDimmingView alloc] initWithFrame:[parentView bounds]
-                                               controller:self] autorelease];
+                                        controller:self] autorelease];
       [view setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
       [view addSubview:mainView_];
    }

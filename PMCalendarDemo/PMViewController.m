@@ -12,6 +12,13 @@
 
 @implementation PMViewController
 
+- (void) dealloc
+{
+   [controller_ release];
+   [super dealloc];
+}
+
+
 - (void) setPeriodLabel:(UILabel *) label
 {
    [periodLabel_ autorelease];
@@ -27,8 +34,9 @@
 
 - (IBAction) showCalendar:(id) sender
 {
-   BOOL      isPopover;
-   NSString  *themeName;
+   BOOL       isPopover;
+   NSString   *themeName;
+   PMPeriod   *period;
    
     if( [controller_ isCalendarVisible])
         [controller_ dismissCalendarAnimated:NO];
@@ -40,19 +48,20 @@
    [controller_ setDelegate:self];
    [controller_ setMondayFirstDayOfWeek:NO];
 
-    if( isPopover)
-        [controller_ presentCalendarFromRect:CGRectZero
-                                      inView:[sender superview]
-                    permittedArrowDirections:PMCalendarArrowDirectionAny
-                                   isPopover:YES
-                                    animated:YES];
-    else
-        [controller_ presentCalendarFromView:sender
-                    permittedArrowDirections:PMCalendarArrowDirectionAny
-                                   isPopover:NO
-                                    animated:YES];
+   if( ! isPopover)
+      [controller_ presentCalendarFromView:sender
+                  permittedArrowDirections:PMCalendarArrowDirectionAny
+                                 isPopover:YES
+                                  animated:YES];
+   else
+      [controller_ presentCalendarFromRect:CGRectZero
+                                    inView:[sender superview]
+                  permittedArrowDirections:PMCalendarArrowDirectionAny
+                                 isPopover:NO
+                                  animated:YES];
 
-   [controller_ setPeriod:[PMPeriod oneDayPeriodWithDate:[NSDate date]]];
+   period = [PMPeriod oneDayPeriodWithDate:[NSDate date]];
+   [controller_ setPeriod:period];
    
    [self calendarController:controller_
             didChangePeriod:[controller_ period]];
