@@ -9,59 +9,53 @@
 #import "PMViewController.h"
 #import "PMCalendar.h"
 
-@interface PMViewController ()
-
-@property (nonatomic, strong) PMCalendarController *pmCC;
-
-@end
 
 @implementation PMViewController
 
-@synthesize pmCC;
-@synthesize periodLabel;
-
-- (IBAction)showCalendar:(id)sender
+- (void) setPeriodLabel:(UILabel *) label
 {
-    if ([self.pmCC isCalendarVisible])
-    {
-        [self.pmCC dismissCalendarAnimated:NO];
-    }
-    
-    BOOL isPopover = YES;
-    if ([sender tag] == 10)
-    {
-        isPopover = NO;
-        self.pmCC = [[PMCalendarController alloc] initWithThemeName:@"apple calendar"];
-        // limit apple calendar to 2 months before and 2 months after current date
-//        self.pmCC.allowedPeriod = [PMPeriod periodWithStartDate:[[NSDate date] dateByAddingMonths:-2]
-//                                                        endDate:[[NSDate date] dateByAddingMonths:2]];
-    }
-    else
-    {
-        self.pmCC = [[PMCalendarController alloc] initWithThemeName:@"default"];
-    }
-    
-    self.pmCC.delegate = self;
-    self.pmCC.mondayFirstDayOfWeek = NO;
+   [periodLabel_ autorelease];
+   periodLabel_ = [label retain];
+}
 
-    if ([sender tag] == 10)
-    {
-        [self.pmCC presentCalendarFromRect:CGRectZero
-                                    inView:[sender superview]
-                  permittedArrowDirections:PMCalendarArrowDirectionAny
-                                 isPopover:isPopover
-                                  animated:YES];
-    }
-    else
-    {
-        [self.pmCC presentCalendarFromView:sender
-                  permittedArrowDirections:PMCalendarArrowDirectionAny
-                                 isPopover:isPopover
-                                  animated:YES];
-    }
 
-    self.pmCC.period = [PMPeriod oneDayPeriodWithDate:[NSDate date]];
-    [self calendarController:pmCC didChangePeriod:pmCC.period];
+- (UILabel *) periodLabel
+{
+   return( periodLabel_);
+}
+
+
+- (IBAction) showCalendar:(id) sender
+{
+   BOOL      isPopover;
+   NSString  *themeName;
+   
+    if( [controller_ isCalendarVisible])
+        [controller_ dismissCalendarAnimated:NO];
+   
+   isPopover   = [sender tag] == 10;
+   themeName   = isPopover ? @"apple calendar" :  @"default";
+   controller_ = [[PMCalendarController alloc] initWithThemeName:themeName];
+   
+   [controller_ setDelegate:self];
+   [controller_ setMondayFirstDayOfWeek:NO];
+
+    if( isPopover)
+        [controller_ presentCalendarFromRect:CGRectZero
+                                      inView:[sender superview]
+                    permittedArrowDirections:PMCalendarArrowDirectionAny
+                                   isPopover:YES
+                                    animated:YES];
+    else
+        [controller_ presentCalendarFromView:sender
+                    permittedArrowDirections:PMCalendarArrowDirectionAny
+                                   isPopover:NO
+                                    animated:YES];
+
+   [controller_ setPeriod:[PMPeriod oneDayPeriodWithDate:[NSDate date]]];
+   
+   [self calendarController:controller_
+            didChangePeriod:[controller_ period]];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -71,11 +65,15 @@
 
 #pragma mark PMCalendarControllerDelegate methods
 
-- (void)calendarController:(PMCalendarController *)calendarController didChangePeriod:(PMPeriod *)newPeriod
+- (void) calendarController:(PMCalendarController *) calendarController
+            didChangePeriod:(PMPeriod *) newPeriod
 {
-    periodLabel.text = [NSString stringWithFormat:@"%@ - %@"
-                        , [newPeriod.startDate pmDateStringWithFormat:@"dd-MM-yyyy"]
-                        , [newPeriod.endDate pmDateStringWithFormat:@"dd-MM-yyyy"]];
+   NSString  *s;
+
+   s = [NSString stringWithFormat:@"%@ - %@",
+        [newPeriod.startDate pmDateStringWithFormat:@"dd-MM-yyyy"],
+        [newPeriod.endDate pmDateStringWithFormat:@"dd-MM-yyyy"]];
+   [periodLabel_ setText:s];
 }
 
 @end

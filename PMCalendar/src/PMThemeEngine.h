@@ -63,24 +63,44 @@ typedef enum PMThemeGenericType
    PMThemeCoordinatesRoundGenericType,
 } PMThemeGenericType;
 
+
 @interface PMThemeEngine : NSObject
+{
+@private
+   NSDictionary   *dict_;
+   
+@protected
+   NSString       *themeName_;
+   
+   UIFont         *defaultFont_;
+   UIEdgeInsets   shadowInsets_;
+   CGSize         innerPadding_;
+   CGSize         outerPadding_;
+   CGSize         arrowSize_;
+   CGSize         defaultSize_;
+   CGFloat        shadowBlurRadius_;
+   CGFloat        headerHeight_;
+   CGFloat        cornerRadius_;
+   BOOL           dayTitlesInHeader_;
+}
 
-@property (nonatomic, strong) NSString   *themeName;
+- (NSString *) themeName;  // rename to name
 
-/** defaults **/
-@property (nonatomic, strong) UIFont         *defaultFont;
-@property (nonatomic, assign) BOOL           dayTitlesInHeader;
-@property (nonatomic, assign) UIEdgeInsets   shadowInsets;
-@property (nonatomic, assign) CGSize         innerPadding;
-@property (nonatomic, assign) CGSize         outerPadding;
-@property (nonatomic, assign) CGSize         arrowSize;
-@property (nonatomic, assign) CGFloat        headerHeight;
-@property (nonatomic, assign) CGFloat        cornerRadius;
-@property (nonatomic, assign) CGSize         defaultSize;
-@property (nonatomic, assign) CGFloat        shadowBlurRadius;
+- (CGSize)  arrowSize;
+- (CGFloat) cornerRadius;
+- (BOOL)    dayTitlesInHeader;
+- (CGSize)  defaultSize;
+- (CGFloat) headerHeight;
+- (CGSize)  innerPadding;
+- (CGSize)  outerPadding;
+- (CGFloat) shadowBlurRadius;
+- (UIEdgeInsets) shadowInsets;
+- (UIFont *) defaultFont;
 
 + (PMThemeEngine *) sharedInstance;
 + (UIColor *) colorFromString:(NSString *) colorString;
+
+- (void) setThemeName:(NSString *) s;  // rename to name
 
 - (void) drawString:(NSString *) string
            withFont:(UIFont *) font

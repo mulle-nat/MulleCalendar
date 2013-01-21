@@ -9,9 +9,22 @@
 #import <UIKit/UIKit.h>
 #import "PMCalendar.h"
 
-@interface PMViewController : UIViewController <PMCalendarControllerDelegate>
 
-@property (nonatomic, strong) IBOutlet UILabel *periodLabel;
-- (IBAction)showCalendar:(id)sender;
+@class PMCalendarController;
+
+
+@interface PMViewController : UIViewController < PMCalendarControllerDelegate>
+{
+   IBOutlet UILabel       *periodLabel_;
+   
+@private
+   PMCalendarController   *controller_;
+}
+
+
+- (IBAction) showCalendar:(id)sender;
+
+- (void) setPeriodLabel:(UILabel *) label;
+- (UILabel *) periodLabel;
 
 @end

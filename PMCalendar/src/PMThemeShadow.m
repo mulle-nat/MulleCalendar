@@ -16,13 +16,22 @@
 {
    NSNumber   *nr;
 
-   color_      = [[PMThemeEngine colorFromString:[shadowDict pmElementInThemeDictOfGenericType:PMThemeColorGenericType]] copy];
+   color_      = [[PMThemeEngine colorFromString:[shadowDict pmElementInThemeDictOfGenericType:PMThemeColorGenericType]] retain];
    offset_     = [[shadowDict pmElementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
    nr          = [shadowDict pmElementInThemeDictOfGenericType:PMThemeShadowBlurRadiusType];
    blurRadius_ = nr ? [nr floatValue] : PMThemeShadowBlurRadius();
 
    return (self);
 }
+
+
+- (void) dealloc
+{
+   [color_ release];
+
+   [super dealloc];
+}
+
 
 - (UIColor *) color       { return( color_); }
 - (CGSize)    offset      { return( offset_); }

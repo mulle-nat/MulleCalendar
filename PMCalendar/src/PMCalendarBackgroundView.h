@@ -15,12 +15,14 @@
  * PMCalendarBackgroundView is a view which contains backgound image including an arrow.
  */
 @interface PMCalendarBackgroundView : UIView
+{
+   PMCalendarArrowDirection   arrowDirection_;
+   CGPoint                    arrowPosition_;
+   
+   CGRect                     initialFrame_;
+}
 
-@property (nonatomic, assign) PMCalendarArrowDirection arrowDirection;
-
-/**
- * Point which arrow points to.
- */
-@property (nonatomic, assign) CGPoint arrowPosition;
+- (void) setArrowPosition:(CGPoint) pos;
+- (void) setArrowDirection:(PMCalendarArrowDirection) dir;
 
 @end

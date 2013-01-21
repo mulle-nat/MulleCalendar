@@ -43,7 +43,7 @@
 /**
  * Creates calendar controller with given theme name and specified size.
  */
-- (id) initWithThemeName:(NSString *) themeName
+- (id) initWithThemeName:(NSString *) name
                  size:(CGSize) size;
 
 

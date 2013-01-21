@@ -13,28 +13,26 @@
 
 @interface PMThemeEngine ()
 
-@property (nonatomic, strong) NSDictionary *themeDict;
-
 + (NSString *) keyNameForElementSubtype:(PMThemeElementSubtype) type;
 + (NSString *) keyNameForElementType:(PMThemeElementType) type;
 + (NSString *) keyNameForGenericType:(PMThemeGenericType) type;
 
 @end
 
+
 @implementation PMThemeEngine
 
-@synthesize arrowSize         = _arrowSize;
-@synthesize cornerRadius      = _cornerRadius;
-@synthesize dayTitlesInHeader = _dayTitlesInHeader;
-@synthesize defaultFont       = _defaultFont;
-@synthesize defaultSize       = _defaultSize;
-@synthesize headerHeight      = _headerHeight;
-@synthesize innerPadding      = _innerPadding;
-@synthesize outerPadding      = _outerPadding;
-@synthesize shadowBlurRadius  = _shadowBlurRadius;
-@synthesize shadowInsets      = _shadowInsets;
-@synthesize themeDict         = _themeDict;
-@synthesize themeName         = _themeName;
+- (NSString *) themeName      { return( themeName_); }  // rename to name
+- (CGSize)  arrowSize         { return( arrowSize_); }
+- (CGFloat) cornerRadius      { return( cornerRadius_); }
+- (BOOL)    dayTitlesInHeader { return( dayTitlesInHeader_); }
+- (CGSize)  defaultSize       { return( defaultSize_); }
+- (CGFloat) headerHeight      { return( headerHeight_); }
+- (CGSize)  innerPadding      { return( innerPadding_); }
+- (CGSize)  outerPadding      { return( outerPadding_); }
+- (CGFloat) shadowBlurRadius  { return( shadowBlurRadius_); }
+- (UIEdgeInsets) shadowInsets { return( shadowInsets_); }
+- (UIFont *) defaultFont      { return( defaultFont_); }
 
 
 + (PMThemeEngine *) sharedInstance
@@ -73,7 +71,7 @@
    a = [elements count] > 3 ? [[elements objectAtIndex:3] floatValue] : 1.0;
    
    
-   return( UIColorMakeRGBA( r, g, b, a));
+   return( pmMakeRGBAUIColor( r, g, b, a));
 }
 
 
@@ -188,36 +186,49 @@
 }
 
 
-- (void) setThemeName:(NSString *)themeName
+- (void) _cacheGeneralSettings
+{
+   NSDictionary   *dict;
+   
+   dict = [self themeDictForType:PMThemeGeneralElementType
+                         subtype:PMThemeNoSubtype];
+   
+   dayTitlesInHeader_ = [[dict objectForKey:@"Day titles in header"] boolValue];
+
+   [defaultFont_ autorelease];
+   defaultFont_       = [[[dict pmElementInThemeDictOfGenericType:PMThemeFontGenericType] pmThemeGenerateFont] retain];
+   
+   arrowSize_         = [[dict objectForKey:@"Arrow size"] pmThemeGenerateSize];
+   defaultSize_       = [[dict objectForKey:@"Default size"] pmThemeGenerateSize];
+   cornerRadius_      = [[dict objectForKey:@"Corner radius"] floatValue];
+   headerHeight_      = [[dict objectForKey:@"Header height"] floatValue];
+   outerPadding_      = [[dict objectForKey:@"Outer padding"] pmThemeGenerateSize];
+   innerPadding_      = [[dict objectForKey:@"Inner padding"] pmThemeGenerateSize];
+   shadowInsets_      = [[dict objectForKey:@"Shadow insets"] pmThemeGenerateEdgeInsets];
+   shadowBlurRadius_  = [[dict objectForKey:@"Shadow blur radius"] floatValue];
+}
+
+
+- (void) setThemeName:(NSString *) themeName
 {
    NSDictionary   *plist;
    NSString       *filePath;
-   NSDictionary *generalSettings;
    
-   if( [_themeName isEqualToString:themeName])
+   if( [themeName_ isEqualToString:themeName])
       return;
    
-   _themeName = themeName;
-   filePath   = [[NSBundle mainBundle] pathForResource:themeName ofType:@"plist"];
+   [themeName_ autorelease];
+   themeName_ = [themeName copy];
+
+   filePath   = [[NSBundle mainBundle] pathForResource:themeName
+                                                ofType:@"plist"];
    plist      = [NSDictionary dictionaryWithContentsOfFile:filePath];
 
    NSParameterAssert( plist);
-   [self setThemeDict:plist];
+   [dict_ autorelease];
+   dict_ = [plist retain];
    
-   
-   generalSettings = [self themeDictForType:PMThemeGeneralElementType
-                                    subtype:PMThemeNoSubtype];
-   
-   self.dayTitlesInHeader = [[generalSettings objectForKey:@"Day titles in header"] boolValue];
-   self.defaultFont       = [[generalSettings pmElementInThemeDictOfGenericType:PMThemeFontGenericType] pmThemeGenerateFont];
-   self.arrowSize         = [[generalSettings objectForKey:@"Arrow size"] pmThemeGenerateSize];
-   self.defaultSize       = [[generalSettings objectForKey:@"Default size"] pmThemeGenerateSize];
-   self.cornerRadius      = [[generalSettings objectForKey:@"Corner radius"] floatValue];
-   self.headerHeight      = [[generalSettings objectForKey:@"Header height"] floatValue];
-   self.outerPadding      = [[generalSettings objectForKey:@"Outer padding"] pmThemeGenerateSize];
-   self.innerPadding      = [[generalSettings objectForKey:@"Inner padding"] pmThemeGenerateSize];
-   self.shadowInsets      = [[generalSettings objectForKey:@"Shadow insets"] pmThemeGenerateEdgeInsets];
-   self.shadowBlurRadius  = [[generalSettings objectForKey:@"Shadow blur radius"] floatValue];
+   [self _cacheGeneralSettings];
 }
 
 
@@ -251,20 +262,20 @@
                                                                              subtype:themeElementSubtype];
    colorObj        = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeColorGenericType];
    shadowDict      = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeShadowGenericType];
-   usedFont        = font;
    offset          = [[themeDictionary pmElementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
    realRect        = CGRectOffset(rect, offset.width, offset.height);
 
+   usedFont        = font;
     if( ! usedFont)
        usedFont = [[themeDictionary pmElementInThemeDictOfGenericType:PMThemeFontGenericType] pmThemeGenerateFont];
 
     if( ! usedFont)
-       usedFont = self.defaultFont;
+       usedFont = [self defaultFont];
 
     NSAssert( usedFont != nil, @"Please provide proper font either in theme file or in a code.");
     
     sz           = [string sizeWithFont:usedFont];
-    isGradient   = ![colorObj isKindOfClass:[NSString class]];
+    isGradient   = ! [colorObj isKindOfClass:[NSString class]];
     shadowOffset = CGSizeZero;
 
    CGContextSaveGState(context);
@@ -273,14 +284,14 @@
    if (shadowDict)
    {
       shadowOffset = [[shadowDict pmElementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
-      shadowColor = [PMThemeEngine colorFromString:[shadowDict pmElementInThemeDictOfGenericType:PMThemeColorGenericType]];
+      shadowColor  = [PMThemeEngine colorFromString:[shadowDict pmElementInThemeDictOfGenericType:PMThemeColorGenericType]];
       [shadowColor set];
    }
    
    textPoint = CGPointMake((int)(realRect.origin.x + (realRect.size.width - sz.width) / 2)
                            , (int)(realRect.origin.y + realRect.size.height - 1));
    
-   ctFont = CTFontCreateWithName( (CFStringRef) [usedFont fontName], usedFont.pointSize, NULL);
+   ctFont     = CTFontCreateWithName( (CFStringRef) [usedFont fontName], usedFont.pointSize, NULL);
    
    keys[ 0]   = kCTFontAttributeName;
    keys[ 1]   = kCTForegroundColorFromContextAttributeName;
@@ -440,7 +451,7 @@
    NSString       *key;
    
    key    = [PMThemeEngine keyNameForElementType:type];
-   result = [[self themeDict] objectForKey:key];
+   result = [[self themeInfo] objectForKey:key];
    
    if( subtype != PMThemeNoSubtype)
    {
@@ -453,13 +464,13 @@
 }
 
 
-- (NSDictionary *) themeDict
+- (NSDictionary *) themeInfo
 {
-   if( ! _themeDict)
+   if( ! dict_)
       [self setThemeName:@"default"];
    
-   NSParameterAssert( [_themeDict isKindOfClass:[NSDictionary class]]);
-   return( _themeDict);
+   NSParameterAssert( [dict_ isKindOfClass:[NSDictionary class]]);
+   return( dict_);
 }
 
 @end

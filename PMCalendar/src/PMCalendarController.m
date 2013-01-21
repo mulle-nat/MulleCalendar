@@ -131,20 +131,20 @@ NSString   *PMCalendarRedrawNotification = @"PMCalendarRedrawNotification";
 }
 
 
-- (id) initWithThemeName:(NSString *) themeName
-                 size:(CGSize) size
+- (id) initWithThemeName:(NSString *) name
+                    size:(CGSize) size
 {
    PMThemeEngine   *themer;
    
    if( ! (self = [super init]))
       return( self);
    
-   if( ! themeName)
-      themeName = @"default";
+   if( ! name)
+      name = @"default";
    
    themer = [PMThemeEngine sharedInstance];
-   if( ! [themeName isEqualToString:[themer themeName]])
-      [themer setThemeName:themeName];
+   if( ! [name isEqualToString:[themer themeName]])
+      [themer setThemeName:name];
    
    if( size.width == 0.0 || size.height == 0.0)
       size = [themer defaultSize];
@@ -165,7 +165,7 @@ NSString   *PMCalendarRedrawNotification = @"PMCalendarRedrawNotification";
 - (id) initWithSize:(CGSize) size
 {
    return( [self initWithThemeName:nil
-                           size:size]);
+                              size:size]);
 }
 
 
@@ -334,7 +334,7 @@ NSString   *PMCalendarRedrawNotification = @"PMCalendarRedrawNotification";
 
    [[self mainView] setFrame:calendarFrame];
     
-   frame.origin = CGPointOffsetByPoint( frame.origin, arrowOffset);
+   frame.origin = pmOffsetPointByPoint( frame.origin, arrowOffset);
    [[self calendarView] setFrame:frame];
 
    arrowPosition = [[self view] convertPoint:arrowPosition
@@ -418,6 +418,7 @@ NSString   *PMCalendarRedrawNotification = @"PMCalendarRedrawNotification";
                        isPopover:(BOOL) isPopover
                         animated:(BOOL) animated
 {
+   // weird, weird code
    [self setAnchorView:anchorView];
    [self setSavedPermittedArrowDirections:arrowDirections];
 
@@ -523,7 +524,7 @@ NSString   *PMCalendarRedrawNotification = @"PMCalendarRedrawNotification";
 
 - (PMPeriod *) allowedPeriod
 {
-   return([self digitsView].allowedPeriod);
+   return([[self digitsView] allowedPeriod]);
 }
 
 

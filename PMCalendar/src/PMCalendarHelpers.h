@@ -12,43 +12,40 @@
 
 static inline float radians(double degrees)
 {
-   return(degrees * M_PI / 180);
+   return( degrees * M_PI / 180);
 }
 
 
-static inline CGPoint CGPointOffset(CGPoint originalPoint, CGFloat dx, CGFloat dy)
+static inline CGPoint   pmOffsetPointByXY( CGPoint originalPoint, CGFloat dx, CGFloat dy)
 {
-   return(CGPointMake(originalPoint.x + dx, originalPoint.y + dy));
+   return( CGPointMake(originalPoint.x + dx, originalPoint.y + dy));
 }
 
 
-static inline CGPoint CGPointOffsetByPoint(CGPoint originalPoint, CGPoint offsetPoint)
+static inline CGPoint   pmOffsetPointByPoint( CGPoint originalPoint, CGPoint offsetPoint)
 {
-   return(CGPointOffset(originalPoint, offsetPoint.x, offsetPoint.y));
+   return( pmOffsetPointByXY( originalPoint, offsetPoint.x, offsetPoint.y));
 }
 
 
-// To be deprecated as UIOffset is iOS 5 only.
-static inline CGSize UIOffsetToCGSize(UIOffset offset)
+static inline CGPoint   pmOffsetPointBySize( CGPoint originalPoint, CGSize offsetSize)
 {
-   return(CGSizeMake(offset.horizontal, offset.vertical));
+   return( pmOffsetPointByXY( originalPoint, offsetSize.width, offsetSize.height));
 }
 
 
-// UIColor helpers
 
-#define UIColorMakeRGBA(nRed, nGreen, nBlue, nAlpha) [UIColor colorWithRed : (nRed) / 255.0f \
-                                                      green : (nGreen) / 255.0f \
-                                                      blue : (nBlue) / 255.0f \
-                                                      alpha : nAlpha]
-#define UIColorMakeRGB(nRed, nGreen, nBlue) UIColorMakeRGBA(nRed, nGreen, nBlue, 1.0f)
+static inline UIColor   *pmMakeRGBAUIColor( float r, float g, float b, float a)
+{
+   return( [UIColor colorWithRed:r / 255.0f
+                           green:g / 255.0f
+                            blue:b / 255.0f
+                           alpha:a]);  // << ??
+}
 
-// Logging
+static inline UIColor   *pmMakeRGBUIColor( float r, float g, float b)
+{
+   return( pmMakeRGBAUIColor( r, g, b, 1.0f));
+}
 
-#define DEBUG_LOGS
 
-#ifdef DEBUG_LOGS
-#define PMLog(message, ...) NSLog((@"PMLOG: %s [Line %d] " message), __PRETTY_FUNCTION__, __LINE__, ## __VA_ARGS__)
-#else
-#define PMLog(message, ...)
-#endif

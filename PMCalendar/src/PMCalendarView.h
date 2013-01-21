@@ -8,7 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+@class PMDaysView;
 @class PMPeriod;
+@class PMSelectionView;
+
 @protocol PMCalendarViewDelegate;
 
 /**
@@ -18,36 +21,55 @@
  * It also renders text (month, weekdays titles, days).
  */
 @interface PMCalendarView : UIView <UIGestureRecognizerDelegate>
+{
+   id <PMCalendarViewDelegate>    delegate_;
+   
+   CGPoint      panPoint_;
+   CGRect       initialFrame_;
+   CGRect       leftArrowRect_;
+   CGRect       rightArrowRect_;
+   NSDate       *currentDate_;
+   NSInteger    currentMonth_;
+   NSInteger    currentYear_;
+   NSInteger    fontSize_;
+   NSTimer      *longPressTimer_;
+   NSTimer      *panTimer_;
+   PMDaysView   *daysView_;
+   PMPeriod     *allowedPeriod_;
+   PMPeriod     *period_;
+   UIFont       *font_;
+   
+   UILongPressGestureRecognizer   *longPressRecognizer_;
+   UIPanGestureRecognizer         *panRecognizer_;
+   UITapGestureRecognizer         *tapRecognizer_;
+   PMSelectionView                *selectionView_;
 
-/**
- * Selected period. See PMCalendarController for more information.
- */
-@property (nonatomic, strong) PMPeriod *period;
+   BOOL         allowsLongPressMonthChange_;
+   BOOL         allowsPeriodSelection_;
+   BOOL         mondayFirstDayOfWeek_;
+}
 
-/**
- * Period allowed for selection. See PMCalendarController for more information.
- */
-@property (nonatomic, strong) PMPeriod *allowedPeriod;
+- (PMPeriod *) period;
+- (PMPeriod *) allowedPeriod;
+- (NSDate *) currentDate;
 
-/**
- * Is monday a first day of week. See PMCalendarController for more information.
- */
-@property (nonatomic, assign) BOOL mondayFirstDayOfWeek;
+- (BOOL) mondayFirstDayOfWeek;
+- (BOOL) allowsPeriodSelection;
+- (BOOL) allowsLongPressMonthChange;
 
-/**
- * Is period selection allowed. See PMCalendarController for more information.
- */
-@property (nonatomic, assign) BOOL allowsPeriodSelection;
+- (void) setMondayFirstDayOfWeek:(BOOL) flag;
+- (void) setAllowsPeriodSelection:(BOOL) flag;
+- (void) setAllowsLongPressMonthChange:(BOOL) flag;
 
-/**
- * Is long press allowed. See PMCalendarController for more information.
- */
-@property (nonatomic, assign) BOOL allowsLongPressMonthChange;
-@property (nonatomic, assign) id<PMCalendarViewDelegate> delegate;
+- (id <PMCalendarViewDelegate>) delegate;
 
-@property (nonatomic, strong) NSDate *currentDate;
+- (void) setDelegate:(id <PMCalendarViewDelegate>) delegate;
+- (void) setPeriod:(PMPeriod *) period;
+- (void) setAllowedPeriod:(PMPeriod *) period;
+- (void) setCurrentDate:(NSDate *) date;
 
 @end
+
 
 @protocol PMCalendarViewDelegate <NSObject>
 

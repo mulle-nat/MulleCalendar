@@ -12,18 +12,7 @@
 #import "PMTheme.h"
 #import "PMThemeShadow.h"
 
-@interface PMCalendarBackgroundView ()
-
-@property (nonatomic, assign) CGRect   initialFrame;
-- (void) redrawComponent;
-
-@end
-
 @implementation PMCalendarBackgroundView
-
-@synthesize arrowDirection = _arrowDirection;
-@synthesize arrowPosition  = _arrowPosition;
-@synthesize initialFrame   = _initialFrame;
 
 #pragma mark - UIView overridden methods -
 
@@ -41,7 +30,8 @@
                                               object:nil];
    
    [self setBackgroundColor:[UIColor clearColor]];
-   [self setInitialFrame:frame];
+
+   initialFrame_ = frame;
 
    return( self);
 }
@@ -51,6 +41,18 @@
 {
    [[NSNotificationCenter defaultCenter] removeObserver:self];
    [super dealloc];
+}
+
+
+- (void) setArrowPosition:(CGPoint) pos
+{
+   arrowPosition_ = pos;
+}
+
+
+- (void) setArrowDirection:(PMCalendarArrowDirection) dir
+{
+   arrowDirection_ = dir;
 }
 
 
@@ -117,7 +119,7 @@
                                          // so start point is a bottom RIGHT point of a triangle ^. this one :)
       startArrowPoint = CGPointMake( arrowSize.width / 2, arrowSize.height);
       endArrowPoint   = CGPointMake( -arrowSize.width / 2, arrowSize.height);
-      offset          = CGPointOffset( offset, arrowPosition.x, 0);
+      offset          = pmOffsetPointByXY( offset, arrowPosition.x, 0);
       tl.y            = arrowSize.height;
       break;
 
@@ -125,14 +127,14 @@
                                            // so start point is a top LEFT point of a triangle - 'V
       startArrowPoint = CGPointMake( -arrowSize.width / 2, -arrowSize.height);
       endArrowPoint   = CGPointMake( arrowSize.width / 2, -arrowSize.height);
-      offset          = CGPointOffset( offset, arrowPosition.x, height + arrowSize.height);
+      offset          = pmOffsetPointByXY( offset, arrowPosition.x, height + arrowSize.height);
       break;
 
    case PMCalendarArrowDirectionLeft :      // going from top to bottom
                                            // so start point is a top RIGHT point of a triangle - <'
       startArrowPoint = CGPointMake( arrowSize.height, -arrowSize.width / 2);
       endArrowPoint   = CGPointMake( arrowSize.height, arrowSize.width / 2);
-      offset          = CGPointOffset( offset, 0, arrowPosition.y);
+      offset          = pmOffsetPointByXY( offset, 0, arrowPosition.y);
       tl.x            = arrowSize.height;
       break;
 
@@ -140,16 +142,16 @@
                                             // so start point is a bottom RIGHT point of a triangle - .>
       startArrowPoint = CGPointMake( -arrowSize.height, arrowSize.width / 2);
       endArrowPoint   = CGPointMake( -arrowSize.height, -arrowSize.width / 2);
-      offset          = CGPointOffset( offset, width + arrowSize.height, arrowPosition.y);
+      offset          = pmOffsetPointByXY( offset, width + arrowSize.height, arrowPosition.y);
       break;
 
    default:
       break;
    }
 
-   startArrowPoint = CGPointOffsetByPoint(startArrowPoint, offset);
-   endArrowPoint   = CGPointOffsetByPoint(endArrowPoint, offset);
-   topArrowPoint   = CGPointOffsetByPoint(topArrowPoint, offset);
+   startArrowPoint = pmOffsetPointByPoint( startArrowPoint, offset);
+   endArrowPoint   = pmOffsetPointByPoint( endArrowPoint, offset);
+   topArrowPoint   = pmOffsetPointByPoint( topArrowPoint, offset);
 
    void   (^createBezierArrow)(void) = ^{
       [result addLineToPoint:startArrowPoint];
@@ -224,55 +226,101 @@
 }
 
 
-- (void) drawRect:(CGRect) rect
+- (void) _drawBackgroundAndAddClipForPath:(UIBezierPath *) path
+                         withInnerShadow:(PMThemeShadow *) innerShadow
+                               inContext:(CGContextRef) context
 {
    CGAffineTransform   transform;
+   UIBezierPath        *negativePath;
+   CGRect               rect;
+   CGFloat             xOffset;
+   CGFloat             yOffset;
+   CGFloat             blurRadius;
+   CGSize              shadowOffset;
+   
+   // background inner shadow
+   shadowOffset = [innerShadow offset];
+   blurRadius   = [innerShadow blurRadius];
+   
+   rect = CGRectInset( [path bounds], -blurRadius, -blurRadius);
+   rect = CGRectOffset( rect, -shadowOffset.width, -shadowOffset.height);
+   rect = CGRectUnion( rect, [path bounds]);
+   rect = CGRectInset( rect, -1, -1);
+   
+   negativePath = [UIBezierPath bezierPathWithRect:rect];
+   [negativePath appendPath:path];
+   negativePath.usesEvenOddFillRule = YES;
+   
+   CGContextSaveGState( context);
+   
+   xOffset = shadowOffset.width + round( rect.size.width);
+   yOffset = shadowOffset.height;
+   
+   CGContextSetShadowWithColor( context,
+                               CGSizeMake( xOffset + copysign(0.1, xOffset),
+                                           yOffset + copysign(0.1, yOffset)),
+                               blurRadius,
+                               [[innerShadow color] CGColor]);
+   
+   [path addClip];
+   transform = CGAffineTransformMakeTranslation( -round( rect.size.width)
+                                                , 0);
+   [negativePath applyTransform:transform];
+   [[UIColor grayColor] setFill];
+   [negativePath fill];
+   
+   CGContextRestoreGState( context);
+}
+
+
+- (void) drawRect:(CGRect) rect
+{
    CGContextRef   context;
    CGFloat        hDiff;
    CGFloat        headerHeight;
    CGFloat        height;
    CGFloat        separatorWidth;
    CGFloat        width;
-   CGFloat        xOffset;
-   CGFloat        yOffset;
    CGPoint        tl;
    CGRect         boxBounds;
+   CGRect         frame;
    CGRect         dividerRect;
-   CGRect         roundedRectangleBorderRect;
    CGSize         arrowSize;
    CGSize         innerPadding;
    NSDictionary   *shadowDict;
    NSNumber       *separatorWidthNumber;
+   PMThemeEngine  *themer;
    PMThemeShadow  *innerShadow;
    UIBezierPath   *dividerPath;
-   UIBezierPath   *roundedRectangleNegativePath;
    UIBezierPath   *roundedRectanglePath;
    UIEdgeInsets   shadowPadding;
    
    context       = UIGraphicsGetCurrentContext();
    
+   themer        = [PMThemeEngine sharedInstance];
    arrowSize     = PMThemeArrowSize();
    shadowPadding = PMThemeShadowInsets();
    innerPadding  = PMThemeInnerPadding();
    headerHeight  = PMThemeHeaderHeight();
    
    // backgound box. doesn't include arrow:
-   boxBounds     = CGRectMake( 0, 0
-                              , self.frame.size.width - arrowSize.height
-                              , self.frame.size.height - arrowSize.height);
+   frame         = [self frame];
+   boxBounds     = CGRectMake( 0, 0,
+                              frame.size.width - arrowSize.height,
+                              frame.size.height - arrowSize.height);
    
    width         = boxBounds.size.width - (shadowPadding.left + shadowPadding.right);
    height        = boxBounds.size.height - (shadowPadding.top + shadowPadding.bottom);
    
-   shadowDict    = [[PMThemeEngine sharedInstance] elementOfGenericType:PMThemeShadowGenericType
-                                                                subtype:PMThemeMainSubtype
-                                                                   type:PMThemeBackgroundElementType];
-   innerShadow   = [[PMThemeShadow alloc] initWithDictionary:shadowDict];
+   shadowDict    = [themer elementOfGenericType:PMThemeShadowGenericType
+                                        subtype:PMThemeMainSubtype
+                                           type:PMThemeBackgroundElementType];
+   innerShadow   = [[[PMThemeShadow alloc] initWithDictionary:shadowDict] autorelease];
    
    tl            = CGPointZero;
 
    
-   switch( self.arrowDirection)
+   switch( arrowDirection_)
    {
    case PMCalendarArrowDirectionUp:
       tl.y               = arrowSize.height;
@@ -288,51 +336,21 @@
 
    // draws background of popover
    roundedRectanglePath = [PMCalendarBackgroundView createBezierPathForSize:boxBounds.size
-                                                                             arrowDirection:self.arrowDirection
-                                                                              arrowPosition:self.arrowPosition];
+                                                             arrowDirection:arrowDirection_
+                                                              arrowPosition:arrowPosition_];
 
-   [[PMThemeEngine sharedInstance] drawPath:roundedRectanglePath
-                             forElementType:PMThemeBackgroundElementType
-                                    subType:PMThemeBackgroundSubtype
-                                  inContext:context];
+   [themer drawPath:roundedRectanglePath
+     forElementType:PMThemeBackgroundElementType
+            subType:PMThemeBackgroundSubtype
+          inContext:context];
 
-   // background inner shadow
-   roundedRectangleBorderRect = CGRectInset([roundedRectanglePath bounds]
-                                                     , -innerShadow.blurRadius
-                                                     , -innerShadow.blurRadius);
-   roundedRectangleBorderRect = CGRectOffset(roundedRectangleBorderRect
-                                             , -innerShadow.offset.width
-                                             , -innerShadow.offset.height);
-   roundedRectangleBorderRect = CGRectInset(CGRectUnion(roundedRectangleBorderRect
-                                                        , [roundedRectanglePath bounds]), -1, -1);
-
-   roundedRectangleNegativePath = [UIBezierPath bezierPathWithRect:roundedRectangleBorderRect];
-   [roundedRectangleNegativePath appendPath:roundedRectanglePath];
-   roundedRectangleNegativePath.usesEvenOddFillRule = YES;
-
-   CGContextSaveGState(context);
-   {
-      xOffset = innerShadow.offset.width + round( roundedRectangleBorderRect.size.width);
-      yOffset = innerShadow.offset.height;
-
-      CGContextSetShadowWithColor(context,
-                                  CGSizeMake(xOffset + copysign(0.1, xOffset)
-                                             , yOffset + copysign(0.1, yOffset)),
-                                  innerShadow.blurRadius,
-                                  innerShadow.color.CGColor);
-
-      [roundedRectanglePath addClip];
-      transform = CGAffineTransformMakeTranslation(-round(roundedRectangleBorderRect.size.width)
-                                                                       , 0);
-      [roundedRectangleNegativePath applyTransform:transform];
-      [[UIColor grayColor] setFill];
-      [roundedRectangleNegativePath fill];
-   }
-   CGContextRestoreGState(context);
-
-   separatorWidthNumber = [[PMThemeEngine sharedInstance] elementOfGenericType:PMThemeSizeWidthGenericType
-                                                                                   subtype:PMThemeMainSubtype
-                                                                                      type:PMThemeSeparatorsElementType];
+   [self _drawBackgroundAndAddClipForPath:roundedRectanglePath
+                          withInnerShadow:innerShadow
+                                inContext:context];
+   
+   separatorWidthNumber = [themer elementOfGenericType:PMThemeSizeWidthGenericType
+                                               subtype:PMThemeMainSubtype
+                                                  type:PMThemeSeparatorsElementType];
 
    if( separatorWidthNumber)
    {
@@ -342,23 +360,23 @@
       
       for( int i = 0; i < 6; i++)
       {
-         dividerRect = CGRectMake( tl.x + innerPadding.width + floor((i + 1) * hDiff) - 1 + shadowPadding.left
-                                  , tl.y + innerPadding.height + headerHeight + shadowPadding.top
-                                  , separatorWidth
-                                  , height - innerPadding.height * 2 - headerHeight);
+         dividerRect = CGRectMake( tl.x + innerPadding.width + floor((i + 1) * hDiff) - 1 + shadowPadding.left,
+                                   tl.y + innerPadding.height + headerHeight + shadowPadding.top,
+                                   separatorWidth,
+                                   height - innerPadding.height * 2 - headerHeight);
          dividerPath = [UIBezierPath bezierPathWithRect:dividerRect];
          
-         [[PMThemeEngine sharedInstance] drawPath:dividerPath
-                                   forElementType:PMThemeSeparatorsElementType
-                                          subType:PMThemeMainSubtype
-                                        inContext:context];
+         [themer drawPath:dividerPath
+           forElementType:PMThemeSeparatorsElementType
+                  subType:PMThemeMainSubtype
+                inContext:context];
       }
    }
 
-   [[PMThemeEngine sharedInstance] drawPath:roundedRectanglePath
-                             forElementType:PMThemeBackgroundElementType
-                                    subType:PMThemeOverlaySubtype
-                                  inContext:context];
+   [themer drawPath:roundedRectanglePath
+     forElementType:PMThemeBackgroundElementType
+            subType:PMThemeOverlaySubtype
+          inContext:context];
 }
 
 
@@ -366,7 +384,7 @@
 {
    BOOL   needsRedraw;
    
-   needsRedraw = ! CGSizeEqualToSize( self.frame.size, frame.size);
+   needsRedraw = ! CGSizeEqualToSize( [self frame].size, frame.size);
 
    [super setFrame:frame];
 

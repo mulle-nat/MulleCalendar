@@ -28,6 +28,7 @@
 		3CDF54E815B2C3FE00B6F64E /* PMPeriod.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CDF54E115B2C3FE00B6F64E /* PMPeriod.m */; };
 		3CDF54E915B2C3FE00B6F64E /* PMSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CDF54E315B2C3FE00B6F64E /* PMSelectionView.m */; };
 		3CF3CAE715B8C58400720F03 /* background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CF3CAE615B8C58400720F03 /* background@2x.png */; };
+		4188E4A716AD90AC00D7ABBF /* PMDaysView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4188E4A616AD90AC00D7ABBF /* PMDaysView.m */; };
 		A913A8AF15BD592500F6239E /* apple calendar.plist in Resources */ = {isa = PBXBuildFile; fileRef = A913A8AE15BD592500F6239E /* apple calendar.plist */; };
 /* End PBXBuildFile section */
 
@@ -70,6 +71,8 @@
 		3CDF54E215B2C3FE00B6F64E /* PMSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PMSelectionView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		3CDF54E315B2C3FE00B6F64E /* PMSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PMSelectionView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		3CF3CAE615B8C58400720F03 /* background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "background@2x.png"; sourceTree = "<group>"; };
+		4188E4A516AD90AC00D7ABBF /* PMDaysView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PMDaysView.h; sourceTree = "<group>"; };
+		4188E4A616AD90AC00D7ABBF /* PMDaysView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PMDaysView.m; sourceTree = "<group>"; };
 		A913A8AE15BD592500F6239E /* apple calendar.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "apple calendar.plist"; sourceTree = "<group>"; };
 		A94719B115B9801B005EB39E /* PMTheme.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PMTheme.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 /* End PBXFileReference section */
@@ -176,6 +179,8 @@
 				3CDF54DD15B2C3FE00B6F64E /* PMCalendarController.m */,
 				3CDF54DE15B2C3FE00B6F64E /* PMCalendarView.h */,
 				3CDF54DF15B2C3FE00B6F64E /* PMCalendarView.m */,
+				4188E4A516AD90AC00D7ABBF /* PMDaysView.h */,
+				4188E4A616AD90AC00D7ABBF /* PMDaysView.m */,
 				3CDF54E015B2C3FE00B6F64E /* PMPeriod.h */,
 				3CDF54E115B2C3FE00B6F64E /* PMPeriod.m */,
 				3CDF54E215B2C3FE00B6F64E /* PMSelectionView.h */,
@@ -271,6 +276,7 @@
 				3C73527C15B619260068E9B4 /* PMDimmingView.m in Sources */,
 				3C1729DB15BBEAEB003138D9 /* PMThemeEngine.m in Sources */,
 				3C181BA215BD2DC500ED37A3 /* PMThemeShadow.m in Sources */,
+				4188E4A716AD90AC00D7ABBF /* PMDaysView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

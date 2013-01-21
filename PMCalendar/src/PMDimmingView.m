@@ -22,7 +22,7 @@
 
    controller_ = controller;
    
-   [self setBackgroundColor:UIColorMakeRGBA( 0, 0, 0, 0.3)];
+   [self setBackgroundColor:pmMakeRGBAUIColor( 0, 0, 0, 0.3)];
 
    return( self);
 }
