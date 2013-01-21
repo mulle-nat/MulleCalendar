@@ -10,8 +10,12 @@
 #import "PMCalendarView.h"
 #import "PMCalendarConstants.h"
 
+
 @protocol PMCalendarControllerDelegate;
+
 @class PMPeriod;
+@class PMCalendarBackgroundView;
+
 
 /**
  * !v0.1 is ARC only!
@@ -26,6 +30,31 @@
  * of the calendar. In 0.5 of a second the calendar will start to iterate through months automatically.
  */
 @interface PMCalendarController : UIViewController <PMCalendarViewDelegate>
+{
+   id <PMCalendarControllerDelegate> delegate_;
+   
+   CGSize      size_;
+   PMPeriod   *allowedPeriod_;
+   PMPeriod   *period_;
+   
+   BOOL        allowsLongPressMonthChange_;
+   BOOL        allowsPeriodSelection_;
+   BOOL        calendarVisible_;
+   BOOL        mondayFirstDayOfWeek_;
+
+   CGPoint                    position_;
+   CGPoint                    savedArrowPosition_;
+   CGRect                     initialFrame_;
+   PMCalendarArrowDirection   calendarArrowDirection_;
+   PMCalendarArrowDirection   savedPermittedArrowDirections_;
+   UIDeviceOrientation        currentOrientation_;
+
+   PMCalendarView             *digitsView_;
+   PMCalendarBackgroundView   *backgroundView_;
+   UIView                     *anchorView_;
+   UIView                     *calendarView_;
+   UIView                     *mainView_;
+}
 
 /**
  * Creates calendar controller with given size. Arrow is NOT includeed in this size.
@@ -82,13 +111,13 @@
  */
 - (void) dismissCalendarAnimated:(BOOL) animated;
 
-@property (nonatomic, assign) id<PMCalendarControllerDelegate> delegate;
 
 /**
  * Currently selected period. Could be a real period or a "one-day" (-[PMPeriod oneDayPeriodWithDate:])
  * period which effectively selects one day.
  */
-@property (nonatomic, strong) PMPeriod *period;
+- (PMPeriod *) period;
+- (void) setPeriod:(PMPeriod *) period;
 
 /**
  * Reflects PMPeriod allowed to select from.
@@ -97,42 +126,47 @@
  * I.e. if allowed period is set to 23.02.2001 - 19.08.2020, user will not be able to see
  * dates before 01.02.2001 and after 31.08.2020.
  */
-@property (nonatomic, strong) PMPeriod *allowedPeriod;
+- (PMPeriod *) allowedPeriod;
+- (void) setAllowedPeriod:(PMPeriod *) period;
 
 /**
  * If set to YES, monday is used as a starting day of week. If NO, Sunday.
  */
-@property (nonatomic, assign, getter = isMondayFirstDayOfWeek) BOOL mondayFirstDayOfWeek;
+- (BOOL) isMondayFirstDayOfWeek;
+- (void) setMondayFirstDayOfWeek:(BOOL) flag;
 
 /**
  * If set to YES, the calendar allows to pan to select period.
  * If set to NO, only one day can be selected.
  */
-@property (nonatomic, assign) BOOL allowsPeriodSelection;
+- (BOOL) allowsPeriodSelection;
 
 /**
  * If set to YES, the calendar allows to long press on a month change arrow
  * in order to fast iterate through months.
  * If set to NO, long press does nothing.
  */
-@property (nonatomic, assign) BOOL allowsLongPressMonthChange;
+- (BOOL) allowsLongPressMonthChange;
 
 /**
  * Returns the direction the arrow is pointing on a presented calendar. 
  * Before presentation, this returns PMCalendarArrowDirectionUnknown.
  */
-@property (nonatomic, readonly) PMCalendarArrowDirection calendarArrowDirection;
+- (PMCalendarArrowDirection) calendarArrowDirection;
 
 /** 
  * This property allows direction manipulation of the content size of the calendar.
  * TBI: method for animated change of size, limitation on minimal controller size.
  */
-@property (nonatomic, assign) CGSize size;
+- (CGSize) size;
 
 /**
  * Returns whether the popover is visible (presented) or not.
  */
-@property (nonatomic, assign, readonly, getter = isCalendarVisible) BOOL calendarVisible;
+-(BOOL) isCalendarVisible;
+
+- (id <PMCalendarControllerDelegate>) delegate;
+- (void) setDelegate:(id <PMCalendarControllerDelegate>) delegate;
 
 @end
 

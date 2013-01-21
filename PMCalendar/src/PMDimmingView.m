@@ -33,7 +33,7 @@
 {
    id   delegate;
    
-   delegate   = [controller_ delegate];
+   delegate = [controller_ delegate];
    
    if( [delegate respondsToSelector:@selector( calendarControllerShouldDismissCalendar:)])
       if( ! [delegate calendarControllerShouldDismissCalendar:controller_])

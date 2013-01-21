@@ -33,7 +33,7 @@
 - (PMPeriod *) allowedPeriod        { return( allowedPeriod_); }
 - (NSDate *) currentDate            { return( currentDate_); }
 
-- (BOOL) mondayFirstDayOfWeek       { return( mondayFirstDayOfWeek_); }
+- (BOOL) isMondayFirstDayOfWeek       { return( mondayFirstDayOfWeek_); }
 - (BOOL) allowsPeriodSelection      { return( allowsPeriodSelection_); }
 - (BOOL) allowsLongPressMonthChange { return( allowsLongPressMonthChange_); }
 
@@ -267,7 +267,7 @@
                                 forElementType:PMThemeMonthArrowsElementType
                                        subType:PMThemeMainSubtype
                                      inContext:context];
-      leftArrowRect_ = CGRectInset(backArrowPath.bounds, -20, -20);
+      leftArrowRect_ = CGRectInset( [backArrowPath bounds], -20, -20);
    }
 
    if( showsRightArrow)
@@ -300,7 +300,7 @@
 - (void) setCurrentDate:(NSDate *) currentDate
 {
    NSCalendar         *gregorian;
-   NSDateComponents   *eComponents;
+   NSDateComponents   *components;
    BOOL               needsRedraw;
 
    if( allowedPeriod_)
@@ -315,22 +315,22 @@
 
 #warning (nat) why not local ?
    gregorian    = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
-   eComponents  = [gregorian components:NSDayCalendarUnit
+   components  = [gregorian components:NSDayCalendarUnit
                   | NSMonthCalendarUnit
                   | NSYearCalendarUnit
                               fromDate:currentDate_];
 
    needsRedraw = NO;
 
-   if( [eComponents month] != currentMonth_)
+   if( [components month] != currentMonth_)
    {
-      currentMonth_ = [eComponents month];
+      currentMonth_ = [components month];
       needsRedraw  = YES;
    }
 
-   if( [eComponents year] != currentYear_)
+   if( [components year] != currentYear_)
    {
-      currentYear_ = [eComponents year];
+      currentYear_ = [components year];
       needsRedraw = YES;
    }
 
@@ -402,7 +402,7 @@
    monthStartDate   = [currentDate_ pmMonthStartDate];
    monthStartDay    = [monthStartDate pmGregorianWeekday];
 
-   monthStartDay    = (monthStartDay + ([self mondayFirstDayOfWeek] ? 5 : 6)) % 7;
+   monthStartDay    = (monthStartDay + ([self isMondayFirstDayOfWeek] ? 5 : 6)) % 7;
    numDaysInMonth  += monthStartDay;
    maxNumberOfCells = ceil((CGFloat) numDaysInMonth / 7) * 7 - 1;
 
@@ -494,8 +494,7 @@
 
    monthStartDate      = [currentDate_ pmMonthStartDate];
    monthStartDay       = [monthStartDate pmGregorianWeekday];
-
-   monthStartDay       = (monthStartDay + ([self mondayFirstDayOfWeek] ? 5 : 6)) % 7;
+   monthStartDay       = (monthStartDay + ([self isMondayFirstDayOfWeek] ? 5 : 6)) % 7;
 
    daysSinceMonthStart = [date timeIntervalSinceDate:monthStartDate] / (60 * 60 * 24);
    
@@ -532,7 +531,7 @@
    monthStartDate  = [currentDate_ pmMonthStartDate];
    monthStartDay   = [monthStartDate pmGregorianWeekday];
 
-   monthStartDay   = (monthStartDay + ([self mondayFirstDayOfWeek] ? 5 : 6)) % 7;
+   monthStartDay   = (monthStartDay + ([self isMondayFirstDayOfWeek] ? 5 : 6)) % 7;
    numDaysInMonth += monthStartDay;
    maxNumberOfRows = ceil((CGFloat) numDaysInMonth / 7) - 1;
 
@@ -588,51 +587,63 @@
    CGFloat    height;
    CGFloat    vDiff;
    NSNumber   *increment;
+   int        nTouches;
+   BOOL       isHit;
    
-   point = [recognizer locationInView:self];
+   point    = [recognizer locationInView:self];
 
-   height = initialFrame_.size.height;
-   vDiff  = (height - PMThemeHeaderHeight()) / ((PMThemeDayTitlesInHeader()) ? 6 : 7);
-
-   if( point.y > PMThemeHeaderHeight() + ((PMThemeDayTitlesInHeader()) ? 0 : vDiff)) // select date in calendar
+   height   = initialFrame_.size.height;
+   vDiff    = (height - PMThemeHeaderHeight()) / ((PMThemeDayTitlesInHeader()) ? 6 : 7);
+   isHit    = point.y > PMThemeHeaderHeight() + ((PMThemeDayTitlesInHeader()) ? 0 : vDiff);
+   nTouches = [recognizer numberOfTouches];
+   
+   switch( [recognizer state])
    {
-      if(([recognizer state] == UIGestureRecognizerStateBegan) && (recognizer.numberOfTouches == 1))
-         [self periodSelectionStarted:point];
-      
-      else
-         if(([recognizer state] == UIGestureRecognizerStateChanged) && (recognizer.numberOfTouches == 1))
-      {
-         if((point.x < 20) || (point.x > initialFrame_.size.width - 20))
-         {
-            panPoint_ = point;
-
-            if( panTimer_)
-               return;
-
-            increment = [NSNumber numberWithInt:point.x < 20 ? -1 : 1];
-
-            panTimer_ = [NSTimer scheduledTimerWithTimeInterval:0.5
-                                                             target:self
-                                                           selector:@selector( panTimerCallback: )
-                                                           userInfo:increment
-                                                            repeats:YES];
-         }
-         else
-         {
-            [panTimer_ invalidate];
-            panTimer_ = nil;
-         }
-
-         [self periodSelectionChanged:point];
-      }
-   }
-
-   if( ([recognizer state] == UIGestureRecognizerStateEnded)
-      || ([recognizer state] == UIGestureRecognizerStateCancelled)
-      || ([recognizer state] == UIGestureRecognizerStateFailed))
-   {
+   case UIGestureRecognizerStateEnded     :
+   case UIGestureRecognizerStateCancelled :
+   case UIGestureRecognizerStateFailed    :
       [panTimer_ invalidate];
       panTimer_ = nil;
+      break;
+         
+   case UIGestureRecognizerStateBegan   :
+      if( ! isHit)
+         break;
+      if( nTouches != 1)
+         break;
+      [self periodSelectionStarted:point];
+      break;
+      
+   case UIGestureRecognizerStateChanged   :
+      if( ! isHit)
+         return;
+      if( nTouches != 1)
+         return;
+      
+      if( (point.x < 20) || (point.x > initialFrame_.size.width - 20))
+      {
+         panPoint_ = point;
+         
+         if( panTimer_)
+            return;
+         
+         increment = [NSNumber numberWithInt:point.x < 20 ? -1 : 1];
+         panTimer_ = [NSTimer scheduledTimerWithTimeInterval:0.5
+                                                      target:self
+                                                    selector:@selector( panTimerCallback: )
+                                                    userInfo:increment
+                                                     repeats:YES];
+      }
+      else
+      {
+         [panTimer_ invalidate];
+         panTimer_ = nil;
+      }
+      
+      [self periodSelectionChanged:point];
+
+   default:
+      break;
    }
 }
 
@@ -642,7 +653,9 @@
    CGPoint   point;
    CGFloat   height;
    CGFloat   vDiff;
-
+   NSDate    *date;
+   int       step;
+   
    point  = [recognizer locationInView:self];
    height = initialFrame_.size.height;
    vDiff  = (height - PMThemeHeaderHeight()) / ((PMThemeDayTitlesInHeader()) ? 6 : 7);
@@ -653,26 +666,28 @@
       return;
    }
 
-   if( CGRectContainsPoint(leftArrowRect_, point))
-   {
-      // User tapped the prevMonth button
-      [self setCurrentDate:[currentDate_ pmDateByAddingMonths:-1]];
-   }
+   if( CGRectContainsPoint( leftArrowRect_, point))
+      step = -1;
    else
-      if( CGRectContainsPoint(rightArrowRect_, point))
-      {
-         // User tapped the nextMonth button
-         [self setCurrentDate:[currentDate_ pmDateByAddingMonths:1]];
-      }
+      if( CGRectContainsPoint( rightArrowRect_, point))
+         step = + 1;
+      else
+         return;
+   
+   date = [currentDate_ pmDateByAddingMonths:step];
+   [self setCurrentDate:date];
 }
 
 
 - (void) longPressTimerCallback:(NSTimer *) timer
 {
    NSNumber   *increment;
+   NSDate     *date;
    
    increment = [timer userInfo];
-   [self setCurrentDate:[currentDate_ pmDateByAddingMonths:[increment intValue]]];
+   date      = [currentDate_ pmDateByAddingMonths:[increment intValue]];
+   
+   [self setCurrentDate:date];
 }
 
 
@@ -681,11 +696,17 @@
    CGPoint   point;
    CGFloat   height;
    CGFloat   vDiff;
+   int       step;
+   NSNumber  *increment;
    
-   if(([recognizer state] == UIGestureRecognizerStateBegan) && (recognizer.numberOfTouches == 1))
+   switch( [recognizer state])
    {
+   case UIGestureRecognizerStateBegan     :
+      if( recognizer.numberOfTouches != 1)
+         break;
+
       if( longPressTimer_)
-         return;
+         break;
       
       point  = [recognizer locationInView:self];
       height = initialFrame_.size.height;
@@ -694,51 +715,46 @@
       if( point.y > PMThemeHeaderHeight() + ((PMThemeDayTitlesInHeader()) ? 0 : vDiff)) // select date in calendar
       {
          [self periodSelectionChanged:point];
-         return;
+         break;
       }
       
-      NSNumber   *increment = nil;
-      
-      if( CGRectContainsPoint(leftArrowRect_, point))
-      {
-         // User tapped the prevMonth button
-         increment = [NSNumber numberWithInt:-1];
-      }
+      step = 0;
+      if( CGRectContainsPoint( leftArrowRect_, point))
+         step = -1;
       else
-         if( CGRectContainsPoint(rightArrowRect_, point))
-         {
-            // User tapped the nextMonth button
-            increment = [NSNumber numberWithInt:1];
-         }
+         if( CGRectContainsPoint( rightArrowRect_, point))
+            step = +1;
       
-      if( increment)
+      if( step)
       {
+         increment       = [NSNumber numberWithInt:step];
          longPressTimer_ = [NSTimer scheduledTimerWithTimeInterval:0.15f
                                                             target:self
                                                           selector:@selector( longPressTimerCallback: )
                                                           userInfo:increment
                                                            repeats:YES];
       }
-   }
-   else
-      if( [recognizer state] == UIGestureRecognizerStateChanged)
+      break;
+      
+   case UIGestureRecognizerStateChanged   :
+      if( longPressTimer_)
+         break;
+      
+      point = [recognizer locationInView:self];
+      [self periodSelectionChanged:point];
+      break;
+      
+   case UIGestureRecognizerStateCancelled :
+   case UIGestureRecognizerStateEnded     :
+      if( longPressTimer_)
       {
-         if( longPressTimer_)
-            return;
-         
-         CGPoint   point = [recognizer locationInView:self];
-         [self periodSelectionChanged:point];
+         [longPressTimer_ invalidate];
+         longPressTimer_ = nil;
       }
-      else
-         if(([recognizer state] == UIGestureRecognizerStateCancelled)
-            || ([recognizer state] == UIGestureRecognizerStateEnded))
-         {
-            if( longPressTimer_)
-            {
-               [longPressTimer_ invalidate];
-               longPressTimer_ = nil;
-            }
-         }
+
+   default:
+      break;
+   }
 }
 
 

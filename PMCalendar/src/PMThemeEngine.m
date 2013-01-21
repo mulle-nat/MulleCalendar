@@ -149,6 +149,7 @@
    case PMThemeBackgroundSubtype : return( @"Background");
    case PMThemeMainSubtype       : return( @"Main");
    case PMThemeOverlaySubtype    : return( @"Overlay");
+   case PMThemeNoSubtype         : ;
    }
    return( nil);
 }

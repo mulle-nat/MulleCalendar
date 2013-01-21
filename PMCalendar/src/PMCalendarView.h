@@ -53,7 +53,7 @@
 - (PMPeriod *) allowedPeriod;
 - (NSDate *) currentDate;
 
-- (BOOL) mondayFirstDayOfWeek;
+- (BOOL) isMondayFirstDayOfWeek;
 - (BOOL) allowsPeriodSelection;
 - (BOOL) allowsLongPressMonthChange;
 
