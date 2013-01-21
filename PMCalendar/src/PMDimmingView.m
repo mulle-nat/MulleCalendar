@@ -11,19 +11,18 @@
 #import "PMCalendarHelpers.h"
 #import "PMDimmingView.h"
 
+
 @implementation PMDimmingView
 
-
-@synthesize controller = _controller;
-
-
-- (id) initWithFrame:(CGRect) frame controller:(PMCalendarController *) controller
+- (id) initWithFrame:(CGRect) frame
+          controller:(PMCalendarController *) controller
 {
    if( ! (self = [super initWithFrame:frame]))
       return( nil);
 
-   [self setController:controller];
-   [self setBackgroundColor:UIColorMakeRGBA(0, 0, 0, 0.3)];
+   controller_ = controller;
+   
+   [self setBackgroundColor:UIColorMakeRGBA( 0, 0, 0, 0.3)];
 
    return( self);
 }
@@ -32,18 +31,15 @@
 - (void) touchesEnded:(NSSet *) touches
             withEvent:(UIEvent *) event
 {
-   PMCalendarController   *controller;
-   id                     delegate;
+   id   delegate;
    
-   controller = [self controller];
-   delegate   = [controller delegate];
+   delegate   = [controller_ delegate];
    
    if( [delegate respondsToSelector:@selector( calendarControllerShouldDismissCalendar:)])
-      if( ! [delegate calendarControllerShouldDismissCalendar:controller])
+      if( ! [delegate calendarControllerShouldDismissCalendar:controller_])
          return;
 
-   [controller dismissCalendarAnimated:YES];
+   [controller_ dismissCalendarAnimated:YES];
 }
-
 
 @end

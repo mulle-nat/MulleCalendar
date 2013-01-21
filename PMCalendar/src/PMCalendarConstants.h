@@ -6,17 +6,17 @@
 // Copyright (c) 2012 Pavel Mazurin. All rights reserved.
 //
 
-extern NSString   *kPMCalendarRedrawNotification;
+extern NSString   *PMCalendarRedrawNotification;
 
 enum
 {
    // PMCalendarArrowDirectionNo      = -1, <- TBI
-   PMCalendarArrowDirectionUp = 1UL << 0,
-      PMCalendarArrowDirectionDown  = 1UL << 1,
-      PMCalendarArrowDirectionLeft  = 1UL << 2,
-      PMCalendarArrowDirectionRight = 1UL << 3,
-      PMCalendarArrowDirectionAny   = PMCalendarArrowDirectionUp | PMCalendarArrowDirectionDown |
+   PMCalendarArrowDirectionUp    = 1UL << 0,
+   PMCalendarArrowDirectionDown  = 1UL << 1,
+   PMCalendarArrowDirectionLeft  = 1UL << 2,
+   PMCalendarArrowDirectionRight = 1UL << 3,
+   PMCalendarArrowDirectionAny   = PMCalendarArrowDirectionUp | PMCalendarArrowDirectionDown |
    PMCalendarArrowDirectionLeft | PMCalendarArrowDirectionRight,
-      PMCalendarArrowDirectionUnknown = NSUIntegerMax
+   PMCalendarArrowDirectionUnknown = NSUIntegerMax
 };
 typedef NSUInteger PMCalendarArrowDirection;

@@ -27,28 +27,30 @@
 
 #pragma mark - UIView overridden methods -
 
-- (void) dealloc
-{
-   [[NSNotificationCenter defaultCenter] removeObserver:self];
-   [super dealloc];
-}
-
 
 - (id) initWithFrame:(CGRect) frame
 {
    if( ! (self = [super initWithFrame:frame]))
-      return(nil);
+      return( self);
 
-   self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+   [self setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 
    [[NSNotificationCenter defaultCenter] addObserver:self
                                             selector:@selector( redrawComponent )
-                                                name:kPMCalendarRedrawNotification
+                                                name:PMCalendarRedrawNotification
                                               object:nil];
-   self.backgroundColor = [UIColor clearColor];
-   self.initialFrame    = frame;
+   
+   [self setBackgroundColor:[UIColor clearColor]];
+   [self setInitialFrame:frame];
 
-   return(self);
+   return( self);
+}
+
+
+- (void) dealloc
+{
+   [[NSNotificationCenter defaultCenter] removeObserver:self];
+   [super dealloc];
 }
 
 
@@ -66,71 +68,79 @@
                             arrowDirection:(PMCalendarArrowDirection) direction
                              arrowPosition:(CGPoint) arrowPosition
 {
-   CGSize         arrowSize     = kPMThemeArrowSize;
-   UIBezierPath   *result       = nil;
-   CGFloat        width         = size.width;
-   CGFloat        height        = size.height;
-   UIEdgeInsets   shadowPadding = kPMThemeShadowPadding;
-   CGFloat        cornerRadius  = kPMThemeCornerRadius;
-
-   width  -= shadowPadding.left + shadowPadding.right;
-   height -= shadowPadding.top + shadowPadding.bottom;
-
+   CGFloat        cornerRadius;
+   CGFloat        height;
+   CGFloat        width;
+   CGPoint        endArrowPoint;
+   CGPoint        offset;
+   CGPoint        startArrowPoint;
+   CGPoint        tl;
+   CGPoint        topArrowPoint;
+   CGRect         pathRect;
+   CGSize         arrowSize;
+   UIBezierPath   *result;
+   UIEdgeInsets   shadowPadding;
+   
+   arrowSize     = PMThemeArrowSize();
+   result        = nil;
+   width         = size.width;
+   height        = size.height;
+   shadowPadding = PMThemeShadowInsets();
+   cornerRadius  = PMThemeCornerRadius();
+   
+   width        -= shadowPadding.left + shadowPadding.right;
+   height       -= shadowPadding.top + shadowPadding.bottom;
+   
    if( arrowSize.height == 0)
    {
-      CGRect   pathRect = CGRectMake(shadowPadding.top
-                                     , shadowPadding.left
-                                     , width
-                                     , height);
-
+      pathRect = CGRectMake(shadowPadding.top
+                            , shadowPadding.left
+                            , width
+                            , height);
+      
       if( cornerRadius > 0)
-      {
-         result = [UIBezierPath bezierPathWithRoundedRect:pathRect
-                                             cornerRadius:cornerRadius];
-      }
-      else
-         result = [UIBezierPath bezierPathWithRect:pathRect];
-
-      return(result);
+         return([UIBezierPath bezierPathWithRoundedRect:pathRect
+                                           cornerRadius:cornerRadius]);
+      return( [UIBezierPath bezierPathWithRect:pathRect]);
    }
 
-   result = [UIBezierPath bezierPath];
-   CGPoint   startArrowPoint = CGPointZero;
-   CGPoint   endArrowPoint   = CGPointZero;
-   CGPoint   topArrowPoint   = CGPointZero;
-   CGPoint   offset          = CGPointMake(shadowPadding.top, shadowPadding.left);
-   CGPoint   tl = CGPointZero;
+   result           = [UIBezierPath bezierPath];
+   startArrowPoint = CGPointZero;
+   endArrowPoint   = CGPointZero;
+   topArrowPoint   = CGPointZero;
+   offset          = CGPointMake(shadowPadding.top, shadowPadding.left);
+   tl              = CGPointZero;
 
    switch( direction)
    {
-   case PMCalendarArrowDirectionUp:      // going from right side to the left
+   case PMCalendarArrowDirectionUp :      // going from right side to the left
                                          // so start point is a bottom RIGHT point of a triangle ^. this one :)
-      startArrowPoint = CGPointMake(arrowSize.width / 2, arrowSize.height);
-      endArrowPoint   = CGPointMake(-arrowSize.width / 2, arrowSize.height);
-      offset          = CGPointOffset(offset, arrowPosition.x, 0);
+      startArrowPoint = CGPointMake( arrowSize.width / 2, arrowSize.height);
+      endArrowPoint   = CGPointMake( -arrowSize.width / 2, arrowSize.height);
+      offset          = CGPointOffset( offset, arrowPosition.x, 0);
       tl.y            = arrowSize.height;
       break;
 
-   case PMCalendarArrowDirectionDown:      // going from left to right
+   case PMCalendarArrowDirectionDown :      // going from left to right
                                            // so start point is a top LEFT point of a triangle - 'V
-      startArrowPoint = CGPointMake(-arrowSize.width / 2, -arrowSize.height);
-      endArrowPoint   = CGPointMake(arrowSize.width / 2, -arrowSize.height);
-      offset          = CGPointOffset(offset, arrowPosition.x, height + arrowSize.height);
+      startArrowPoint = CGPointMake( -arrowSize.width / 2, -arrowSize.height);
+      endArrowPoint   = CGPointMake( arrowSize.width / 2, -arrowSize.height);
+      offset          = CGPointOffset( offset, arrowPosition.x, height + arrowSize.height);
       break;
 
-   case PMCalendarArrowDirectionLeft:      // going from top to bottom
+   case PMCalendarArrowDirectionLeft :      // going from top to bottom
                                            // so start point is a top RIGHT point of a triangle - <'
-      startArrowPoint = CGPointMake(arrowSize.height, -arrowSize.width / 2);
-      endArrowPoint   = CGPointMake(arrowSize.height, arrowSize.width / 2);
-      offset          = CGPointOffset(offset, 0, arrowPosition.y);
+      startArrowPoint = CGPointMake( arrowSize.height, -arrowSize.width / 2);
+      endArrowPoint   = CGPointMake( arrowSize.height, arrowSize.width / 2);
+      offset          = CGPointOffset( offset, 0, arrowPosition.y);
       tl.x            = arrowSize.height;
       break;
 
-   case PMCalendarArrowDirectionRight:      // going from bottom to top
+   case PMCalendarArrowDirectionRight :      // going from bottom to top
                                             // so start point is a bottom RIGHT point of a triangle - .>
-      startArrowPoint = CGPointMake(-arrowSize.height, arrowSize.width / 2);
-      endArrowPoint   = CGPointMake(-arrowSize.height, -arrowSize.width / 2);
-      offset          = CGPointOffset(offset, width + arrowSize.height, arrowPosition.y);
+      startArrowPoint = CGPointMake( -arrowSize.height, arrowSize.width / 2);
+      endArrowPoint   = CGPointMake( -arrowSize.height, -arrowSize.width / 2);
+      offset          = CGPointOffset( offset, width + arrowSize.height, arrowPosition.y);
       break;
 
    default:
@@ -210,52 +220,74 @@
 
    [result closePath];
 
-   return(result);
+   return( result);
 }
 
 
 - (void) drawRect:(CGRect) rect
 {
-   CGContextRef   context = UIGraphicsGetCurrentContext();
-
-   CGSize         arrowSize     = kPMThemeArrowSize;
-   UIEdgeInsets   shadowPadding = kPMThemeShadowPadding;
-   CGSize         innerPadding  = kPMThemeInnerPadding;
-   CGFloat        headerHeight  = kPMThemeHeaderHeight;
-
+   CGAffineTransform   transform;
+   CGContextRef   context;
+   CGFloat        hDiff;
+   CGFloat        headerHeight;
+   CGFloat        height;
+   CGFloat        separatorWidth;
+   CGFloat        width;
+   CGFloat        xOffset;
+   CGFloat        yOffset;
+   CGPoint        tl;
+   CGRect         boxBounds;
+   CGRect         dividerRect;
+   CGRect         roundedRectangleBorderRect;
+   CGSize         arrowSize;
+   CGSize         innerPadding;
+   NSDictionary   *shadowDict;
+   NSNumber       *separatorWidthNumber;
+   PMThemeShadow  *innerShadow;
+   UIBezierPath   *dividerPath;
+   UIBezierPath   *roundedRectangleNegativePath;
+   UIBezierPath   *roundedRectanglePath;
+   UIEdgeInsets   shadowPadding;
+   
+   context       = UIGraphicsGetCurrentContext();
+   
+   arrowSize     = PMThemeArrowSize();
+   shadowPadding = PMThemeShadowInsets();
+   innerPadding  = PMThemeInnerPadding();
+   headerHeight  = PMThemeHeaderHeight();
+   
    // backgound box. doesn't include arrow:
-   CGRect   boxBounds = CGRectMake(0, 0
-                                   , self.frame.size.width - arrowSize.height
-                                   , self.frame.size.height - arrowSize.height);
+   boxBounds     = CGRectMake( 0, 0
+                              , self.frame.size.width - arrowSize.height
+                              , self.frame.size.height - arrowSize.height);
+   
+   width         = boxBounds.size.width - (shadowPadding.left + shadowPadding.right);
+   height        = boxBounds.size.height - (shadowPadding.top + shadowPadding.bottom);
+   
+   shadowDict    = [[PMThemeEngine sharedInstance] elementOfGenericType:PMThemeShadowGenericType
+                                                                subtype:PMThemeMainSubtype
+                                                                   type:PMThemeBackgroundElementType];
+   innerShadow   = [[PMThemeShadow alloc] initWithDictionary:shadowDict];
+   
+   tl            = CGPointZero;
 
-   CGFloat   width  = boxBounds.size.width - (shadowPadding.left + shadowPadding.right);
-   CGFloat   height = boxBounds.size.height - (shadowPadding.top + shadowPadding.bottom);
-
-   NSDictionary   *shadowDict = [[PMThemeEngine sharedInstance] elementOfGenericType:PMThemeShadowGenericType
-                                                                             subtype:PMThemeMainSubtype
-                                                                                type:PMThemeBackgroundElementType];
-   PMThemeShadow   *innerShadow = [[PMThemeShadow alloc] initWithShadowDict:shadowDict];
-
-   CGPoint   tl = CGPointZero;
-
+   
    switch( self.arrowDirection)
    {
    case PMCalendarArrowDirectionUp:
-      tl.y = arrowSize.height;
+      tl.y               = arrowSize.height;
       boxBounds.origin.y = arrowSize.height;
       break;
 
    case PMCalendarArrowDirectionLeft:
-      tl.x = arrowSize.height;
+      tl.x               = arrowSize.height;
       boxBounds.origin.x = arrowSize.height;
-      break;
-
    default:
       break;
    }
 
    // draws background of popover
-   UIBezierPath   *roundedRectanglePath = [PMCalendarBackgroundView createBezierPathForSize:boxBounds.size
+   roundedRectanglePath = [PMCalendarBackgroundView createBezierPathForSize:boxBounds.size
                                                                              arrowDirection:self.arrowDirection
                                                                               arrowPosition:self.arrowPosition];
 
@@ -265,7 +297,7 @@
                                   inContext:context];
 
    // background inner shadow
-   CGRect   roundedRectangleBorderRect = CGRectInset([roundedRectanglePath bounds]
+   roundedRectangleBorderRect = CGRectInset([roundedRectanglePath bounds]
                                                      , -innerShadow.blurRadius
                                                      , -innerShadow.blurRadius);
    roundedRectangleBorderRect = CGRectOffset(roundedRectangleBorderRect
@@ -274,14 +306,15 @@
    roundedRectangleBorderRect = CGRectInset(CGRectUnion(roundedRectangleBorderRect
                                                         , [roundedRectanglePath bounds]), -1, -1);
 
-   UIBezierPath   *roundedRectangleNegativePath = [UIBezierPath bezierPathWithRect:roundedRectangleBorderRect];
+   roundedRectangleNegativePath = [UIBezierPath bezierPathWithRect:roundedRectangleBorderRect];
    [roundedRectangleNegativePath appendPath:roundedRectanglePath];
    roundedRectangleNegativePath.usesEvenOddFillRule = YES;
 
    CGContextSaveGState(context);
    {
-      CGFloat   xOffset = innerShadow.offset.width + round(roundedRectangleBorderRect.size.width);
-      CGFloat   yOffset = innerShadow.offset.height;
+      xOffset = innerShadow.offset.width + round( roundedRectangleBorderRect.size.width);
+      yOffset = innerShadow.offset.height;
+
       CGContextSetShadowWithColor(context,
                                   CGSizeMake(xOffset + copysign(0.1, xOffset)
                                              , yOffset + copysign(0.1, yOffset)),
@@ -289,7 +322,7 @@
                                   innerShadow.color.CGColor);
 
       [roundedRectanglePath addClip];
-      CGAffineTransform   transform = CGAffineTransformMakeTranslation(-round(roundedRectangleBorderRect.size.width)
+      transform = CGAffineTransformMakeTranslation(-round(roundedRectangleBorderRect.size.width)
                                                                        , 0);
       [roundedRectangleNegativePath applyTransform:transform];
       [[UIColor grayColor] setFill];
@@ -297,24 +330,24 @@
    }
    CGContextRestoreGState(context);
 
-   NSNumber   *separatorWidthNumber = [[PMThemeEngine sharedInstance] elementOfGenericType:PMThemeSizeWidthGenericType
+   separatorWidthNumber = [[PMThemeEngine sharedInstance] elementOfGenericType:PMThemeSizeWidthGenericType
                                                                                    subtype:PMThemeMainSubtype
                                                                                       type:PMThemeSeparatorsElementType];
 
    if( separatorWidthNumber)
    {
       // dividers
-      CGFloat   hDiff          = (width + shadowPadding.left + shadowPadding.right - innerPadding.width * 2) / 7;
-      CGFloat   separatorWidth = [separatorWidthNumber floatValue];
-
+      hDiff          = (width + shadowPadding.left + shadowPadding.right - innerPadding.width * 2) / 7;
+      separatorWidth = [separatorWidthNumber floatValue];
+      
       for( int i = 0; i < 6; i++)
       {
-         CGRect   dividerRect = CGRectMake(tl.x + innerPadding.width + floor((i + 1) * hDiff) - 1 + shadowPadding.left
-                                           , tl.y + innerPadding.height + headerHeight + shadowPadding.top
-                                           , separatorWidth
-                                           , height - innerPadding.height * 2 - headerHeight);
-         UIBezierPath   *dividerPath = [UIBezierPath bezierPathWithRect:dividerRect];
-
+         dividerRect = CGRectMake( tl.x + innerPadding.width + floor((i + 1) * hDiff) - 1 + shadowPadding.left
+                                  , tl.y + innerPadding.height + headerHeight + shadowPadding.top
+                                  , separatorWidth
+                                  , height - innerPadding.height * 2 - headerHeight);
+         dividerPath = [UIBezierPath bezierPathWithRect:dividerRect];
+         
          [[PMThemeEngine sharedInstance] drawPath:dividerPath
                                    forElementType:PMThemeSeparatorsElementType
                                           subType:PMThemeMainSubtype
@@ -331,10 +364,9 @@
 
 - (void) setFrame:(CGRect) frame
 {
-   BOOL   needsRedraw = NO;
-
-   if( ! CGSizeEqualToSize(self.frame.size, frame.size))
-      needsRedraw = YES;
+   BOOL   needsRedraw;
+   
+   needsRedraw = ! CGSizeEqualToSize( self.frame.size, frame.size);
 
    [super setFrame:frame];
 

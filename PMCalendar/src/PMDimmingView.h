@@ -17,9 +17,11 @@
  * user interaction outside of the calendar and dismisses calendar. 
  */
 @interface PMDimmingView : UIView
+{
+   PMCalendarController   *controller_;  // non retained 
+}
 
-@property (nonatomic, strong) PMCalendarController *controller;
-
-- (id)initWithFrame:(CGRect)frame controller:(PMCalendarController*)controller;
+- (id) initWithFrame:(CGRect) frame
+          controller:(PMCalendarController*) controller;
 
 @end

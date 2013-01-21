@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
+
 typedef enum PMThemeElementType
 {
    PMThemeGeneralElementType = 0,
@@ -25,6 +26,7 @@ typedef enum PMThemeElementType
    PMThemeSelectionElementType,
 } PMThemeElementType;
 
+
 typedef enum PMThemeElementSubtype
 {
    PMThemeNoSubtype = -1,
@@ -32,6 +34,7 @@ typedef enum PMThemeElementSubtype
    PMThemeMainSubtype,
    PMThemeOverlaySubtype,
 } PMThemeElementSubtype;
+
 
 typedef enum PMThemeGenericType
 {
@@ -100,9 +103,9 @@ typedef enum PMThemeGenericType
 
 @end
 
-@interface NSDictionary (PMThemeAddons)
+@interface NSDictionary ( PMThemeAddons)
 
-- (id) elementInThemeDictOfGenericType:(PMThemeGenericType) type;
+- (id) pmElementInThemeDictOfGenericType:(PMThemeGenericType) type;
 - (CGSize) pmThemeGenerateSize;
 // UIOffset is available from iOS 5.0 :(. Using CGSize instead.
 // - (UIOffset) pmThemeGenerateOffset;

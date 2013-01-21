@@ -14,15 +14,19 @@
  * PMSelectionView is a view which renders selection. 
  */
 @interface PMSelectionView : UIView
+{
+   NSInteger   startIndex_;
+   NSInteger   endIndex_;
 
-/**
- * Selection start index.
- */
-@property (nonatomic, assign) NSInteger startIndex;
+@private
+   CGRect      initialFrame_;
+}
 
-/**
- * Selection end index.
- */
-@property (nonatomic, assign) NSInteger endIndex;
+
+- (void) setStartIndex:(NSInteger) value;
+- (void) setEndIndex:(NSInteger) value;
+
+- (NSInteger) startIndex;
+- (NSInteger) endIndex;
 
 @end

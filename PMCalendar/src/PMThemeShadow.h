@@ -8,12 +8,18 @@
 
 #import <UIKit/UIKit.h>
 
+
 @interface PMThemeShadow : NSObject
+{
+   UIColor   *color_;
+   CGSize    offset_;
+   CGFloat   blurRadius_;
+}
 
-@property (nonatomic, strong) UIColor *color;
-@property (nonatomic, assign) CGSize offset;
-@property (nonatomic, assign) CGFloat blurRadius;
+- (id) initWithDictionary:(NSDictionary *) dict;
 
-- (id) initWithShadowDict:(NSDictionary *) shadowDict;
+- (UIColor *) color;
+- (CGSize) offset;
+- (CGFloat) blurRadius;
 
 @end

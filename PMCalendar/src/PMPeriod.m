@@ -9,95 +9,111 @@
 #import "NSDate+Helpers.h"
 #import "PMPeriod.h"
 
+
 @implementation PMPeriod
 
-@synthesize startDate = _startDate;
-@synthesize endDate   = _endDate;
-
-+ (id) periodWithStartDate:(NSDate *) startDate endDate:(NSDate *) endDate
+- (NSDate *) startDate
 {
-   PMPeriod   *result = [[PMPeriod alloc] init];
+   return( startDate_);
+}
 
-   result.startDate = startDate;
-   result.endDate   = endDate;
 
-   return(result);
+- (NSDate *) endDate
+{
+   return( endDate_);
+}
+
+
++ (id) periodWithStartDate:(NSDate *) startDate
+                   endDate:(NSDate *) endDate
+{
+   return( [[[PMPeriod alloc] initWithStartDate:startDate
+                                        endDate:endDate] autorelease]);
 }
 
 
 + (id) oneDayPeriodWithDate:(NSDate *) date
 {
-   PMPeriod   *result = [[PMPeriod alloc] init];
-
-   result.startDate = [date pmDateWithoutTime];
-   result.endDate   = result.startDate;
-
-   return(result);
+   NSDate   *adjusted;
+   
+   adjusted = [date pmDateWithoutTime];
+   return( [[[PMPeriod alloc] initWithStartDate:adjusted
+                                        endDate:adjusted] autorelease]);
 }
 
 
-- (BOOL) isEqual:(id) object
+- (id) initWithStartDate:(NSDate *) startDate
+                 endDate:(NSDate *) endDate
 {
-   if( ! [object isKindOfClass:[PMPeriod class]])
-      return(NO);
-
-   PMPeriod   *period = object;
-   return([self.startDate isEqualToDate:period.startDate]
-          && [self.endDate isEqualToDate:period.endDate]);
+   startDate_ = [startDate copy];
+   endDate_   = [endDate copy];
+   
+   return( self);
 }
 
 
+- (void) dealloc
+{
+   [endDate_ release];
+   [startDate_ release];
+   
+   [super dealloc];
+}
+
+
+- (BOOL) isEqualToPeriod:(PMPeriod *) other
+{
+   return( [startDate_ isEqualToDate:other->startDate_] &&
+           [endDate_ isEqualToDate:other->endDate_]);
+}
+
+
+- (BOOL) isEqual:(id) other
+{
+   if( ! [other isKindOfClass:[PMPeriod class]])
+      return( NO);
+
+   return( [self isEqualToPeriod:other]);
+}
+
+
+// suspicious!
 - (NSInteger) lengthInDays
 {
-   return([self.endDate timeIntervalSinceDate:self.startDate] / (60 * 60 * 24));
+   return( [endDate_ timeIntervalSinceDate:startDate_] / (60 * 60 * 24));
 }
 
 
 - (NSString *) description
 {
-   return([NSString stringWithFormat:@"startDate = %@; endDate = %@", _startDate, _endDate]);
+   return( [NSString stringWithFormat:@"{ startDate = %@; endDate = %@ }", startDate_, endDate_]);
 }
 
 
 - (PMPeriod *) normalizedPeriod
 {
-   PMPeriod   *result = [[PMPeriod alloc] init];
+   if( [startDate_ compare:endDate_] != NSOrderedDescending)
+      return( self);
 
-   if( [_startDate compare:_endDate] == NSOrderedAscending)
-   {
-      result.startDate = _startDate;
-      result.endDate   = _endDate;
-   }
-   else
-   {
-      result.startDate = _endDate;
-      result.endDate   = _startDate;
-   }
-
-   return(result);
+   return( [PMPeriod periodWithStartDate:endDate_
+                                 endDate:startDate_]);
 }
 
 
 - (BOOL) containsDate:(NSDate *) date
 {
-   PMPeriod   *normalizedPeriod = [self normalizedPeriod];
+   PMPeriod   *normalized;
+   
+   normalized = [self normalizedPeriod];
 
-   if(([normalizedPeriod.startDate compare:date] != NSOrderedDescending)
-      && ([normalizedPeriod.endDate compare:date] != NSOrderedAscending))
-      return(YES);
-
-   return(NO);
+   return( [normalized->startDate_ compare:date] != NSOrderedDescending &&
+           [normalized->endDate_ compare:date] != NSOrderedAscending);
 }
 
 
 - (id) copyWithZone:(NSZone *) zone
 {
-   PMPeriod   *copiedPeriod = [[PMPeriod alloc] init];
-
-   copiedPeriod.startDate = [_startDate copyWithZone:zone];
-   copiedPeriod.endDate   = [_endDate copyWithZone:zone];
-
-   return(copiedPeriod);
+   return( [self retain]);
 }
 
 

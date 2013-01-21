@@ -33,6 +33,7 @@
  */
 - (id) initWithSize:(CGSize) size;
 
+
 /**
  * Creates calendar controller with given theme name.
  * This method gets default calendar size from theme and invokes -initWithSize:.
@@ -42,7 +43,10 @@
 /**
  * Creates calendar controller with given theme name and specified size.
  */
-- (id) initWithThemeName:(NSString *) themeName andSize:(CGSize) size;
+- (id) initWithThemeName:(NSString *) themeName
+                 size:(CGSize) size;
+
+
 
 /**
  * Allows you to present a calendar from a rect in a particular view.
@@ -53,20 +57,20 @@
  * "isPopover" is particulary handy for calendars like apple's calendar from Calendar.app
  * which couldn't be dismissed and alows interaction below it.
  */
-- (void)presentCalendarFromRect:(CGRect) rect
-                         inView:(UIView *) view
-       permittedArrowDirections:(PMCalendarArrowDirection) arrowDirections
-                      isPopover:(BOOL) isPopover
-                       animated:(BOOL) animated;
+- (void) presentCalendarFromRect:(CGRect) rect
+                          inView:(UIView *) parentView
+        permittedArrowDirections:(PMCalendarArrowDirection) arrowDirections
+                       isPopover:(BOOL) isPopover
+                        animated:(BOOL) animated;
 
 /**
  * Like the above, but is a convenience for presentation from a "UIView" instance.
  * This allows to calculate position of the calendar during rotation, so it positions itself properly.
  */
-- (void)presentCalendarFromView:(UIView *) anchorView
-       permittedArrowDirections:(PMCalendarArrowDirection) arrowDirections
-                      isPopover:(BOOL) isPopover
-                       animated:(BOOL) animated;
+- (void) presentCalendarFromView:(UIView *) anchorView
+        permittedArrowDirections:(PMCalendarArrowDirection) arrowDirections
+                       isPopover:(BOOL) isPopover
+                        animated:(BOOL) animated;
 
 /**
  * Called to dismiss the calendar programmatically.
@@ -132,6 +136,8 @@
 
 @end
 
+
+
 @protocol PMCalendarControllerDelegate <NSObject>
 
 @optional
@@ -142,17 +148,18 @@
  *
  * This method is not called when -dismissCalendarAnimated: is called directly.
  */
-- (BOOL)calendarControllerShouldDismissCalendar:(PMCalendarController *)calendarController;
+- (BOOL) calendarControllerShouldDismissCalendar:(PMCalendarController *)calendarController;
 
 /**
  * Called on the delegate right after calendar controller removes itself from a superview.
  */
-- (void)calendarControllerDidDismissCalendar:(PMCalendarController *)calendarController;
+- (void) calendarControllerDidDismissCalendar:(PMCalendarController *) calendarController;
 
 /**
  * Called on the delegate when the calendar's selected period changed.
  */
-- (void)calendarController:(PMCalendarController *)calendarController didChangePeriod:(PMPeriod *)newPeriod;
+- (void) calendarController:(PMCalendarController *) calendarController
+            didChangePeriod:(PMPeriod *) newPeriod;
 
 @end
 
@@ -163,17 +170,17 @@
  * "arrowDirections" is a bitfield which specifies what arrow directions are allowed
  * when laying out the calendar.
  */
-- (void)presentCalendarFromRect:(CGRect) rect
-                         inView:(UIView *) view
-       permittedArrowDirections:(PMCalendarArrowDirection) arrowDirections
-                       animated:(BOOL) animated;
+- (void) presentCalendarFromRect:(CGRect) rect
+                          inView:(UIView *) view
+        permittedArrowDirections:(PMCalendarArrowDirection) arrowDirections
+                        animated:(BOOL) animated;
 
 /**
  * Like the above, but is a convenience for presentation from a "UIView" instance.
  * This allows to calculate position of the calendar during rotation, so it positions itself properly.
  */
-- (void)presentCalendarFromView:(UIView *) anchorView
-       permittedArrowDirections:(PMCalendarArrowDirection) arrowDirections
-                       animated:(BOOL) animated;
+- (void) presentCalendarFromView:(UIView *) anchorView
+        permittedArrowDirections:(PMCalendarArrowDirection) arrowDirections
+                        animated:(BOOL) animated;
 
 @end

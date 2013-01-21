@@ -100,8 +100,8 @@
    i = 0;
    for( NSDictionary *colElement in gradientArray)
    {
-      color = [colElement elementInThemeDictOfGenericType:PMThemeColorGenericType];
-      pos   = [colElement elementInThemeDictOfGenericType:PMThemePositionGenericType];
+      color = [colElement pmElementInThemeDictOfGenericType:PMThemeColorGenericType];
+      pos   = [colElement pmElementInThemeDictOfGenericType:PMThemePositionGenericType];
       
       [gradientColorsArray addObject:(id) [[PMThemeEngine colorFromString:color] CGColor]];
       gradientLocations[ i] = 1 - [pos floatValue];
@@ -112,10 +112,10 @@
    gradient   = CGGradientCreateWithColors( colorSpace, (CFArrayRef) gradientColorsArray, gradientLocations);
    
    CGContextDrawLinearGradient( context,
-                               gradient,
-                               CGPointMake(rect.origin.x + rect.size.width / 2, rect.origin.y + rect.size.height),
-                               CGPointMake(rect.origin.x + rect.size.width / 2, rect.origin.y),
-                               0);
+                                gradient,
+                                CGPointMake(rect.origin.x + rect.size.width / 2, rect.origin.y + rect.size.height),
+                                CGPointMake(rect.origin.x + rect.size.width / 2, rect.origin.y),
+                                0);
    CGGradientRelease( gradient);
    CGColorSpaceRelease( colorSpace);
 }
@@ -209,7 +209,7 @@
                                     subtype:PMThemeNoSubtype];
    
    self.dayTitlesInHeader = [[generalSettings objectForKey:@"Day titles in header"] boolValue];
-   self.defaultFont       = [[generalSettings elementInThemeDictOfGenericType:PMThemeFontGenericType] pmThemeGenerateFont];
+   self.defaultFont       = [[generalSettings pmElementInThemeDictOfGenericType:PMThemeFontGenericType] pmThemeGenerateFont];
    self.arrowSize         = [[generalSettings objectForKey:@"Arrow size"] pmThemeGenerateSize];
    self.defaultSize       = [[generalSettings objectForKey:@"Default size"] pmThemeGenerateSize];
    self.cornerRadius      = [[generalSettings objectForKey:@"Corner radius"] floatValue];
@@ -249,14 +249,14 @@
 
    themeDictionary = [[PMThemeEngine sharedInstance] themeDictForType:themeElementType
                                                                              subtype:themeElementSubtype];
-   colorObj        = [themeDictionary elementInThemeDictOfGenericType:PMThemeColorGenericType];
-   shadowDict      = [themeDictionary elementInThemeDictOfGenericType:PMThemeShadowGenericType];
+   colorObj        = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeColorGenericType];
+   shadowDict      = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeShadowGenericType];
    usedFont        = font;
-   offset          = [[themeDictionary elementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
+   offset          = [[themeDictionary pmElementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
    realRect        = CGRectOffset(rect, offset.width, offset.height);
 
     if( ! usedFont)
-       usedFont = [[themeDictionary elementInThemeDictOfGenericType:PMThemeFontGenericType] pmThemeGenerateFont];
+       usedFont = [[themeDictionary pmElementInThemeDictOfGenericType:PMThemeFontGenericType] pmThemeGenerateFont];
 
     if( ! usedFont)
        usedFont = self.defaultFont;
@@ -272,8 +272,8 @@
    /****/
    if (shadowDict)
    {
-      shadowOffset = [[shadowDict elementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
-      shadowColor = [PMThemeEngine colorFromString:[shadowDict elementInThemeDictOfGenericType:PMThemeColorGenericType]];
+      shadowOffset = [[shadowDict pmElementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
+      shadowColor = [PMThemeEngine colorFromString:[shadowDict pmElementInThemeDictOfGenericType:PMThemeColorGenericType]];
       [shadowColor set];
    }
    
@@ -362,17 +362,17 @@
    
    themeDictionary = [[PMThemeEngine sharedInstance] themeDictForType:themeElementType
                                                               subtype:themeElementSubtype];
-   colorObj        = [themeDictionary elementInThemeDictOfGenericType:PMThemeColorGenericType];
+   colorObj        = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeColorGenericType];
    
-   shadowDict      = [themeDictionary elementInThemeDictOfGenericType:PMThemeShadowGenericType];
+   shadowDict      = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeShadowGenericType];
    
    CGContextSaveGState(context);
    
    if (shadowDict)
    {
-      shadowOffset = [[shadowDict elementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
-      shadowColor  = [PMThemeEngine colorFromString:[shadowDict elementInThemeDictOfGenericType:PMThemeColorGenericType]];
-      blurRadius   = [shadowDict elementInThemeDictOfGenericType:PMThemeShadowBlurRadiusType];
+      shadowOffset = [[shadowDict pmElementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
+      shadowColor  = [PMThemeEngine colorFromString:[shadowDict pmElementInThemeDictOfGenericType:PMThemeColorGenericType]];
+      blurRadius   = [shadowDict pmElementInThemeDictOfGenericType:PMThemeShadowBlurRadiusType];
       
       CGContextSetShadowWithColor( context
                                   , shadowOffset
@@ -407,15 +407,15 @@
                                  fromArray:colorObj];
    }
    
-   stroke = [themeDictionary elementInThemeDictOfGenericType:PMThemeStrokeGenericType];
+   stroke = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeStrokeGenericType];
    
    if (stroke)
    {
-      strokeColorStr = [stroke elementInThemeDictOfGenericType:PMThemeColorGenericType];
+      strokeColorStr = [stroke pmElementInThemeDictOfGenericType:PMThemeColorGenericType];
       strokeColor    = [PMThemeEngine colorFromString:strokeColorStr];
       [strokeColor setStroke];
       
-      [path setLineWidth:[[stroke elementInThemeDictOfGenericType:PMThemeSizeWidthGenericType] floatValue]]; // TODO: make separate stroke width generic type
+      [path setLineWidth:[[stroke pmElementInThemeDictOfGenericType:PMThemeSizeWidthGenericType] floatValue]]; // TODO: make separate stroke width generic type
       
       [path stroke];
    }
@@ -429,7 +429,7 @@
                        type:(PMThemeElementType) type
 {
     return( [[[PMThemeEngine sharedInstance] themeDictForType:type
-                                                     subtype:subtype] elementInThemeDictOfGenericType:genericType]);
+                                                     subtype:subtype] pmElementInThemeDictOfGenericType:genericType]);
 }
 
 
@@ -467,7 +467,7 @@
 
 @implementation NSDictionary (PMThemeAddons)
 
-- (id) elementInThemeDictOfGenericType:(PMThemeGenericType) type
+- (id) pmElementInThemeDictOfGenericType:(PMThemeGenericType) type
 {
    NSString  *key;
    
@@ -481,8 +481,8 @@
    NSNumber   *height;
    NSNumber   *width;
    
-   width  = [self elementInThemeDictOfGenericType:PMThemeSizeWidthGenericType];
-   height = [self elementInThemeDictOfGenericType:PMThemeSizeHeightGenericType];
+   width  = [self pmElementInThemeDictOfGenericType:PMThemeSizeWidthGenericType];
+   height = [self pmElementInThemeDictOfGenericType:PMThemeSizeHeightGenericType];
    
    NSParameterAssert( ! width  || [width isKindOfClass:[NSNumber class]]);
    NSParameterAssert( ! height || [height isKindOfClass:[NSNumber class]]);
@@ -498,8 +498,8 @@
    NSString   *name;
    NSString   *type;
    
-   size = [self elementInThemeDictOfGenericType:PMThemeFontSizeGenericType];
-   name = [self elementInThemeDictOfGenericType:PMThemeFontNameGenericType];
+   size = [self pmElementInThemeDictOfGenericType:PMThemeFontSizeGenericType];
+   name = [self pmElementInThemeDictOfGenericType:PMThemeFontNameGenericType];
    
    if( ! size)
       return( [PMThemeEngine sharedInstance].defaultFont);
@@ -512,7 +512,7 @@
       return( [UIFont fontWithName:name
                               size:sizef]);
 
-   type = [self elementInThemeDictOfGenericType:PMThemeFontTypeGenericType];
+   type = [self pmElementInThemeDictOfGenericType:PMThemeFontTypeGenericType];
    if ([type isEqualToString:@"bold"])
       return( [UIFont boldSystemFontOfSize:sizef]);
       
@@ -527,10 +527,10 @@
    NSNumber   *right;
    NSNumber   *top;
    
-   top    = [self elementInThemeDictOfGenericType:PMThemeEdgeInsetsTopGenericType];
-   left   = [self elementInThemeDictOfGenericType:PMThemeEdgeInsetsLeftGenericType];
-   bottom = [self elementInThemeDictOfGenericType:PMThemeEdgeInsetsBottomGenericType];
-   right  = [self elementInThemeDictOfGenericType:PMThemeEdgeInsetsRightGenericType];
+   top    = [self pmElementInThemeDictOfGenericType:PMThemeEdgeInsetsTopGenericType];
+   left   = [self pmElementInThemeDictOfGenericType:PMThemeEdgeInsetsLeftGenericType];
+   bottom = [self pmElementInThemeDictOfGenericType:PMThemeEdgeInsetsBottomGenericType];
+   right  = [self pmElementInThemeDictOfGenericType:PMThemeEdgeInsetsRightGenericType];
    
    if( ! top || ! bottom || ! left || ! right)
       return( UIEdgeInsetsZero);

@@ -12,28 +12,20 @@
 
 @implementation PMThemeShadow
 
-@synthesize color      = _color;
-@synthesize offset     = _offset;
-@synthesize blurRadius = _blurRadius;
-
-- (id) initWithShadowDict:(NSDictionary *) shadowDict
+- (id) initWithDictionary:(NSDictionary *) shadowDict
 {
-   NSNumber   *blurRadiusNumber;
-   float      radius;
+   NSNumber   *nr;
 
-   [super init];
+   color_      = [[PMThemeEngine colorFromString:[shadowDict pmElementInThemeDictOfGenericType:PMThemeColorGenericType]] copy];
+   offset_     = [[shadowDict pmElementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
+   nr          = [shadowDict pmElementInThemeDictOfGenericType:PMThemeShadowBlurRadiusType];
+   blurRadius_ = nr ? [nr floatValue] : PMThemeShadowBlurRadius();
 
-   [self setColor:[PMThemeEngine colorFromString:[shadowDict elementInThemeDictOfGenericType:PMThemeColorGenericType]]];
-   [self setOffset:[[shadowDict elementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize]];
-
-   blurRadiusNumber = [shadowDict elementInThemeDictOfGenericType:PMThemeShadowBlurRadiusType];
-   radius           = blurRadiusNumber ? [blurRadiusNumber floatValue] : kPMThemeShadowBlurRadius;
-
-   [self setBlurRadius:radius];
-
-
-   return(self);
+   return (self);
 }
 
+- (UIColor *) color       { return( color_); }
+- (CGSize)    offset      { return( offset_); }
+- (CGFloat)   blurRadius  { return( blurRadius_); }
 
 @end
