@@ -72,7 +72,11 @@ typedef enum PMThemeGenericType
 @protected
    NSString       *themeName_;
    
+   // shortcuts derived from dict_
    UIFont         *defaultFont_;
+   UIFont         *dayFont_;
+   UIFont         *monthFont_;
+   
    UIEdgeInsets   shadowInsets_;
    CGSize         innerPadding_;
    CGSize         outerPadding_;
@@ -95,7 +99,11 @@ typedef enum PMThemeGenericType
 - (CGSize)  outerPadding;
 - (CGFloat) shadowBlurRadius;
 - (UIEdgeInsets) shadowInsets;
+
+// lazy loaded fonts
 - (UIFont *) defaultFont;
+- (UIFont *) dayFont;
+- (UIFont *) monthFont;
 
 + (PMThemeEngine *) sharedInstance;
 + (UIColor *) colorFromString:(NSString *) colorString;
@@ -121,15 +129,15 @@ typedef enum PMThemeGenericType
 - (NSDictionary *) themeDictForType:(PMThemeElementType) type
                             subtype:(PMThemeElementSubtype) subtype;
 
+- (UIFont *) generateFontWithThemeDict:(NSDictionary *) info;
+
 @end
+
 
 @interface NSDictionary ( PMThemeAddons)
 
 - (id) pmElementInThemeDictOfGenericType:(PMThemeGenericType) type;
 - (CGSize) pmThemeGenerateSize;
-// UIOffset is available from iOS 5.0 :(. Using CGSize instead.
-// - (UIOffset) pmThemeGenerateOffset;
 - (UIEdgeInsets) pmThemeGenerateEdgeInsets;
-- (UIFont *) pmThemeGenerateFont;
 
 @end

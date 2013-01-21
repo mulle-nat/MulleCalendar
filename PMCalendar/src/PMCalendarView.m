@@ -113,6 +113,16 @@
 - (void) dealloc
 {
    // [_allowedPeriod release];
+   [longPressTimer_ invalidate];
+   [longPressTimer_ release];
+
+   [panTimer_ invalidate];
+   [panTimer_ release];
+   
+   [allowedPeriod_ release];
+   [period_ release];
+   [font_ release];
+   [currentDate_ release];
    
    [[NSNotificationCenter defaultCenter] removeObserver:self];
    [super dealloc];
@@ -179,14 +189,10 @@
    vDiff         = (height - headerHeight) / (PMThemeDayTitlesInHeaderIntOffset() + 5);
    
    themer        = [PMThemeEngine sharedInstance];
-   dayFont       = [[themer elementOfGenericType:PMThemeFontGenericType
-                                         subtype:PMThemeMainSubtype
-                                            type:PMThemeDayTitlesElementType]
-                    pmThemeGenerateFont];
-   monthFont     = [[themer elementOfGenericType:PMThemeFontGenericType
-                                         subtype:PMThemeMainSubtype
-                                            type:PMThemeMonthTitleElementType]
-                    pmThemeGenerateFont];
+   
+#warning (nat) lazy cache this in the PMThemeEngine 
+   dayFont       = [themer dayFont];
+   monthFont     = [themer monthFont];
    
    for( int i = 0; i < dayTitles.count; i++)
    {
@@ -200,12 +206,12 @@
                                            , hDiff
                                            , sz.height);
 
-      [[PMThemeEngine sharedInstance] drawString:dayTitle
-                                        withFont:dayFont
-                                          inRect:dayHeaderFrame
-                                  forElementType:PMThemeDayTitlesElementType
-                                         subType:PMThemeMainSubtype
-                                       inContext:context];
+      [themer drawString:dayTitle
+                withFont:dayFont
+                  inRect:dayHeaderFrame
+          forElementType:PMThemeDayTitlesElementType
+                 subType:PMThemeMainSubtype
+               inContext:context];
    }
 
    month      = currentMonth_;

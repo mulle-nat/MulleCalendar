@@ -20,7 +20,7 @@
 - (NSDate *) currentDate        { return( currentDate_); }
 - (PMPeriod *) selectedPeriod   { return( selectedPeriod_); }
 - (BOOL) mondayFirstDayOfWeek   { return( mondayFirstDayOfWeek_); }
-- (NSArray *) rects             { return( rects_); }
+//- (NSArray *) rects             { return( rects_); }
 
 - (void) _setMondayFirstDayOfWeek:(BOOL) flag
 {
@@ -52,6 +52,12 @@
 - (void) dealloc
 {
    [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+   [rects_ release];
+   [currentDate_ release];
+   [selectedPeriod_ release];
+   [font_ release];
+   
    [super dealloc];
 }
 
@@ -196,8 +202,9 @@
       selected = (i >= selectionStartIndex) && (i <= selectionEndIndex);
       isToday  = (i == todayIndex);
       
+#warning (nat) ooooooh CGRectFromString day nrs could be cached
       string          = [NSString stringWithFormat:@"%d", day];
-      dayHeader2Frame = CGRectFromString([[self rects] objectAtIndex:i]);
+      dayHeader2Frame = CGRectFromString( [rects_ objectAtIndex:i]);
       type            = PMThemeCalendarDigitsInactiveElementType;
       
       if( isToday)
@@ -207,8 +214,9 @@
          if( selected && todaySelectedDict)
             type = PMThemeCalendarDigitsTodaySelectedElementType;
       }
-      else if( selected && inactiveSelectedDict)
-         type = PMThemeCalendarDigitsInactiveSelectedElementType;
+      else
+         if( selected && inactiveSelectedDict)
+            type = PMThemeCalendarDigitsInactiveSelectedElementType;
       
       [themer drawString:string
                 withFont:calendarFont
@@ -229,7 +237,8 @@
          if((dayNumber >= (weekdayOfFirst - 1)) && (day <= numDaysInMonth))
          {
             string          = [NSString stringWithFormat:@"%d", day];
-            dayHeader2Frame = CGRectFromString([[self rects] objectAtIndex:dayNumber]);
+#warning (nat) oooooh CGRectFromString
+            dayHeader2Frame = CGRectFromString( [rects_ objectAtIndex:dayNumber]);
             selected        = (dayNumber >= selectionStartIndex) && (dayNumber <= selectionEndIndex);
             isToday         = (dayNumber == (todayIndex + weekdayOfFirst - 1));
             
@@ -242,8 +251,8 @@
                   hDiff    = (width + shadowPadding.left + shadowPadding.right - PMThemeInnerPadding().width * 2) / 7;
                   vDiff    = (height - PMThemeHeaderHeight() - PMThemeInnerPadding().height *
                               2) / ((PMThemeDayTitlesInHeader()) ? 6 : 7);
-                  bgOffset = [[todayBGDict pmElementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
                   
+                  bgOffset         = [[todayBGDict pmElementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
                   coordinatesRound = [todayBGDict pmElementInThemeDictOfGenericType:PMThemeCoordinatesRoundGenericType];
                   
                   if( coordinatesRound)
@@ -321,7 +330,8 @@
          isToday         = (numDaysInMonth + day - 1 == todayIndex);
          selected        = (index >= selectionStartIndex) && (index <= selectionEndIndex);
          string         = [NSString stringWithFormat:@"%d", day];
-         dayHeader2Frame = CGRectFromString([[self rects] objectAtIndex:index]);
+#warning (nat) ooooooh CGRectFromString
+         dayHeader2Frame = CGRectFromString([rects_ objectAtIndex:index]);
          
          type = PMThemeCalendarDigitsInactiveElementType;
          

@@ -32,7 +32,54 @@
 - (CGSize)  outerPadding      { return( outerPadding_); }
 - (CGFloat) shadowBlurRadius  { return( shadowBlurRadius_); }
 - (UIEdgeInsets) shadowInsets { return( shadowInsets_); }
-- (UIFont *) defaultFont      { return( defaultFont_); }
+
+- (UIFont *) defaultFont
+{
+   NSDictionary   *info;
+   
+   if( ! defaultFont_)
+   {
+      info          = [self themeDictForType:PMThemeGeneralElementType
+                                     subtype:PMThemeNoSubtype];
+      info          = [info pmElementInThemeDictOfGenericType:PMThemeFontGenericType];
+      defaultFont_  = [[self generateFontWithThemeDict:info] retain];
+
+      NSParameterAssert( defaultFont_);
+   }
+   return( defaultFont_);
+}
+
+//
+// should I really cache this ???
+//
+- (UIFont *) dayFont
+{
+   NSDictionary   *info;
+   
+   if( ! dayFont_)
+   {
+      info     = [self elementOfGenericType:PMThemeFontGenericType
+                                    subtype:PMThemeMainSubtype
+                                       type:PMThemeDayTitlesElementType];
+      dayFont_ = [[self generateFontWithThemeDict:info] retain];
+   }
+   return( dayFont_);
+}
+
+
+- (UIFont *) monthFont
+{
+   NSDictionary   *info;
+   
+   if( ! monthFont_)
+   {
+      info       = [self elementOfGenericType:PMThemeFontGenericType
+                                      subtype:PMThemeMainSubtype
+                                         type:PMThemeMonthTitleElementType];
+      monthFont_ = [[self generateFontWithThemeDict:info] retain];
+   }
+   return( monthFont_);
+}
 
 
 + (PMThemeEngine *) sharedInstance
@@ -42,6 +89,28 @@
    if( ! sharedInstance)
       sharedInstance = [PMThemeEngine new];
    return( sharedInstance);
+}
+
+
+- (void) _lazyFonts
+{
+   [defaultFont_ release];
+   defaultFont_ = nil;
+   [dayFont_ release];
+   dayFont_ = nil;
+   [monthFont_ release];
+   monthFont_ = nil;
+}
+
+
+- (void) dealloc
+{
+   [self _lazyFonts];
+
+   [themeName_ release];
+   [dict_ release];
+   
+   [super dealloc];
 }
 
 
@@ -186,19 +255,15 @@
    return( nil);
 }
 
-
 - (void) _cacheGeneralSettings
 {
    NSDictionary   *dict;
-   
+
    dict = [self themeDictForType:PMThemeGeneralElementType
                          subtype:PMThemeNoSubtype];
    
    dayTitlesInHeader_ = [[dict objectForKey:@"Day titles in header"] boolValue];
 
-   [defaultFont_ autorelease];
-   defaultFont_       = [[[dict pmElementInThemeDictOfGenericType:PMThemeFontGenericType] pmThemeGenerateFont] retain];
-   
    arrowSize_         = [[dict objectForKey:@"Arrow size"] pmThemeGenerateSize];
    defaultSize_       = [[dict objectForKey:@"Default size"] pmThemeGenerateSize];
    cornerRadius_      = [[dict objectForKey:@"Corner radius"] floatValue];
@@ -229,6 +294,7 @@
    [dict_ autorelease];
    dict_ = [plist retain];
    
+   [self _lazyFonts];
    [self _cacheGeneralSettings];
 }
 
@@ -253,23 +319,27 @@
    CGSize                  sz;
    CTFontRef               ctFont;
    CTLineRef               line;
+   NSDictionary            *info;
    NSDictionary            *shadowDict;
    NSDictionary            *themeDictionary;
    UIColor                 *shadowColor;
    UIFont                  *usedFont;
    id                      colorObj;   
 
-   themeDictionary = [[PMThemeEngine sharedInstance] themeDictForType:themeElementType
-                                                                             subtype:themeElementSubtype];
+   themeDictionary = [self themeDictForType:themeElementType
+                                    subtype:themeElementSubtype];
    colorObj        = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeColorGenericType];
    shadowDict      = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeShadowGenericType];
    offset          = [[themeDictionary pmElementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
    realRect        = CGRectOffset(rect, offset.width, offset.height);
 
-   usedFont        = font;
+#warning (nat) may want to cache fonts by name 
+   usedFont     = font;
     if( ! usedFont)
-       usedFont = [[themeDictionary pmElementInThemeDictOfGenericType:PMThemeFontGenericType] pmThemeGenerateFont];
-
+    {
+       info     = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeFontGenericType];
+       usedFont = [self generateFontWithThemeDict:info];
+    }
     if( ! usedFont)
        usedFont = [self defaultFont];
 
@@ -372,8 +442,8 @@
    UIColor        *strokeColor;
    id             colorObj;
    
-   themeDictionary = [[PMThemeEngine sharedInstance] themeDictForType:themeElementType
-                                                              subtype:themeElementSubtype];
+   themeDictionary = [self themeDictForType:themeElementType
+                                    subtype:themeElementSubtype];
    colorObj        = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeColorGenericType];
    
    shadowDict      = [themeDictionary pmElementInThemeDictOfGenericType:PMThemeShadowGenericType];
@@ -435,13 +505,13 @@
    CGContextRestoreGState(context);
 }
 
-
+#warning (nat) ugh...
 - (id) elementOfGenericType:(PMThemeGenericType) genericType
                     subtype:(PMThemeElementSubtype) subtype
                        type:(PMThemeElementType) type
 {
-    return( [[[PMThemeEngine sharedInstance] themeDictForType:type
-                                                     subtype:subtype] pmElementInThemeDictOfGenericType:genericType]);
+    return( [[self themeDictForType:type
+                            subtype:subtype] pmElementInThemeDictOfGenericType:genericType]);
 }
 
 
@@ -474,6 +544,35 @@
    return( dict_);
 }
 
+
+- (UIFont *) generateFontWithThemeDict:(NSDictionary *) info
+{
+   CGFloat    sizef;
+   NSNumber   *size;
+   NSString   *name;
+   NSString   *type;
+   
+   size = [info pmElementInThemeDictOfGenericType:PMThemeFontSizeGenericType];
+   name = [info pmElementInThemeDictOfGenericType:PMThemeFontNameGenericType];
+   
+   if( ! size)
+      return( [self defaultFont]);
+   
+   NSParameterAssert( [size isKindOfClass:[NSNumber class]]);
+   
+   sizef = [size floatValue];
+   
+   if( name)
+      return( [UIFont fontWithName:name
+                              size:sizef]);
+   
+   type = [info pmElementInThemeDictOfGenericType:PMThemeFontTypeGenericType];
+   if ([type isEqualToString:@"bold"])
+      return( [UIFont boldSystemFontOfSize:sizef]);
+   
+   return( [UIFont systemFontOfSize:sizef]);
+}
+
 @end
 
 
@@ -500,35 +599,6 @@
    NSParameterAssert( ! height || [height isKindOfClass:[NSNumber class]]);
    
    return( CGSizeMake( [width floatValue], [height floatValue]));
-}
-
-
-- (UIFont *) pmThemeGenerateFont
-{
-   CGFloat    sizef;
-   NSNumber   *size;
-   NSString   *name;
-   NSString   *type;
-   
-   size = [self pmElementInThemeDictOfGenericType:PMThemeFontSizeGenericType];
-   name = [self pmElementInThemeDictOfGenericType:PMThemeFontNameGenericType];
-   
-   if( ! size)
-      return( [PMThemeEngine sharedInstance].defaultFont);
-   
-   NSParameterAssert( [size isKindOfClass:[NSNumber class]]);
-   
-   sizef = [size floatValue];
-   
-   if( name)
-      return( [UIFont fontWithName:name
-                              size:sizef]);
-
-   type = [self pmElementInThemeDictOfGenericType:PMThemeFontTypeGenericType];
-   if ([type isEqualToString:@"bold"])
-      return( [UIFont boldSystemFontOfSize:sizef]);
-      
-   return( [UIFont systemFontOfSize:sizef]);
 }
 
 

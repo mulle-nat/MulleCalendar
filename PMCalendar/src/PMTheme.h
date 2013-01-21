@@ -10,6 +10,8 @@
 #import "PMThemeEngine.h"
 
 
+#warning (nat) get rid of all this madness
+
 static CGSize   PMThemeArrowSize( void)
 {
    return( [[PMThemeEngine sharedInstance] arrowSize]);

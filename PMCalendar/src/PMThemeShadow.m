@@ -15,8 +15,10 @@
 - (id) initWithDictionary:(NSDictionary *) shadowDict
 {
    NSNumber   *nr;
-
-   color_      = [[PMThemeEngine colorFromString:[shadowDict pmElementInThemeDictOfGenericType:PMThemeColorGenericType]] retain];
+   NSString   *s;
+   
+   s           = [shadowDict pmElementInThemeDictOfGenericType:PMThemeColorGenericType];
+   color_      = [[PMThemeEngine colorFromString:s] retain];
    offset_     = [[shadowDict pmElementInThemeDictOfGenericType:PMThemeOffsetGenericType] pmThemeGenerateSize];
    nr          = [shadowDict pmElementInThemeDictOfGenericType:PMThemeShadowBlurRadiusType];
    blurRadius_ = nr ? [nr floatValue] : PMThemeShadowBlurRadius();

@@ -28,17 +28,19 @@
    CGRect       initialFrame_;
    CGRect       leftArrowRect_;
    CGRect       rightArrowRect_;
-   NSDate       *currentDate_;
    NSInteger    currentMonth_;
    NSInteger    currentYear_;
    NSInteger    fontSize_;
+
+   NSDate       *currentDate_;
    NSTimer      *longPressTimer_;
    NSTimer      *panTimer_;
-   PMDaysView   *daysView_;
    PMPeriod     *allowedPeriod_;
    PMPeriod     *period_;
    UIFont       *font_;
    
+   PMDaysView   *daysView_;
+
    UILongPressGestureRecognizer   *longPressRecognizer_;
    UIPanGestureRecognizer         *panRecognizer_;
    UITapGestureRecognizer         *tapRecognizer_;

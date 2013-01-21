@@ -148,6 +148,10 @@ NSString   *PMCalendarRedrawNotification = @"PMCalendarRedrawNotification";
 - (void) dealloc
 {
    [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+   [allowedPeriod_ release];
+   [period_ release];
+   
    [super dealloc];
 }
 
