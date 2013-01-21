@@ -1,4 +1,8 @@
-This is an attempt to uglify PMCalendar to NOT use ARC.
+This is PMCalendar which does not use ARC. There are some API changes. 
+I don't care. :)
+This will become MulleCalendar soon.
+
+
 
 PMCalendar v0.3
 ==========
