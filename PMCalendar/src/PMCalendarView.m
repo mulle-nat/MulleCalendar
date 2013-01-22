@@ -502,7 +502,7 @@
    monthStartDay       = [monthStartDate pmGregorianWeekday];
    monthStartDay       = (monthStartDay + ([self isMondayFirstDayOfWeek] ? 5 : 6)) % 7;
 
-   daysSinceMonthStart = [date timeIntervalSinceDate:monthStartDate] / (60 * 60 * 24);
+   daysSinceMonthStart = [date pmDaysSinceDate:monthStartDate];
    
    return(daysSinceMonthStart + monthStartDay);
 }

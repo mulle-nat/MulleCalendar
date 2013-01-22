@@ -127,10 +127,9 @@
 }
 
 
-#warning (nat) this could be wrong
 - (NSInteger) pmDaysSinceDate:(NSDate *) date
 { 
-   return( [self timeIntervalSinceDate:date] / (60 * 60 * 24));
+    return( round( [self timeIntervalSinceDate:date] / (60 * 60 * 24)));
 }
 
 

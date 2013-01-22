@@ -80,7 +80,7 @@
 // suspicious!
 - (NSInteger) lengthInDays
 {
-   return( [endDate_ timeIntervalSinceDate:startDate_] / (60 * 60 * 24));
+   return( [endDate_ pmDaysSinceDate:startDate_]);
 }
 
 

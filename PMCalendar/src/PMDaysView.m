@@ -172,10 +172,10 @@
    // Find number of days in previous month
    prevDateOnFirst      = [[currentDate_ pmDateByAddingMonths:-1] pmMonthStartDate];
    numDaysInPrevMonth   = [prevDateOnFirst pmNumberOfDaysInMonth];
-   firstDateInCal       = [monthStartDate pmDateByAddingDays:(-weekdayOfFirst + 2)];
+   firstDateInCal       = [monthStartDate pmDateByAddingDays:(-weekdayOfFirst + 1)];
    
-   selectionStartIndex  = [[selectedPeriod_ startDate] pmDaysSinceDate:firstDateInCal] + 1;
-   selectionEndIndex    = [[selectedPeriod_ endDate] pmDaysSinceDate:firstDateInCal] + 1;
+   selectionStartIndex  = [[selectedPeriod_ startDate] pmDaysSinceDate:firstDateInCal];
+   selectionEndIndex    = [[selectedPeriod_ endDate] pmDaysSinceDate:firstDateInCal];
    
    themer               = [PMThemeEngine sharedInstance];
    
@@ -240,7 +240,7 @@
 #warning (nat) oooooh CGRectFromString
             dayHeader2Frame = CGRectFromString( [rects_ objectAtIndex:dayNumber]);
             selected        = (dayNumber >= selectionStartIndex) && (dayNumber <= selectionEndIndex);
-            isToday         = (dayNumber == (todayIndex + weekdayOfFirst - 1));
+            isToday         = (dayNumber == todayIndex);
             
             if( isToday)
             {
@@ -327,7 +327,7 @@
       {
          index           = numDaysInMonth + weekdayOfFirst + i - weekdayOfNextFirst - 1;
          day             = i - weekdayOfNextFirst + 1;
-         isToday         = (numDaysInMonth + day - 1 == todayIndex);
+         isToday         = (day == todayIndex);
          selected        = (index >= selectionStartIndex) && (index <= selectionEndIndex);
          string         = [NSString stringWithFormat:@"%d", day];
 #warning (nat) ooooooh CGRectFromString

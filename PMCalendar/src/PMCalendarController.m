@@ -369,7 +369,9 @@ found:
                                          arrowPointsToRect:frame];
 
 #warning (nat) initial frame is supicious
+   
    initialFrame_ = [mainView_ frame];
+
    [self fullRedraw];
 
    [[NSNotificationCenter defaultCenter] addObserver:self
